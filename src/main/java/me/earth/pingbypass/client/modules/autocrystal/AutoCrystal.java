@@ -86,7 +86,6 @@ public class AutoCrystal extends Module
 
     final BreakHelper breakHelper = new BreakHelper(this);
     final PlaceHelper placeHelper = new PlaceHelper(this);
-    BlockPos renderPos;
     boolean confirmed;
     EntityPlayer currentTarget;
 

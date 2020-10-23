@@ -5,6 +5,7 @@ import me.earth.earthhack.impl.util.beans.Wrapper;
 import me.earth.earthhack.impl.util.math.PositionUtil;
 import me.earth.earthhack.impl.util.math.RayTraceUtil;
 import me.earth.earthhack.impl.util.math.RotationUtil;
+import me.earth.earthhack.impl.util.minecraft.BlockUtil;
 import me.earth.earthhack.impl.util.minecraft.EntityUtil;
 import me.earth.earthhack.impl.util.minecraft.InventoryUtil;
 import me.earth.pingbypass.PingBypass;
@@ -239,7 +240,7 @@ public class DamageCalc extends Wrapper<AutoCrystal> implements Runnable, Global
             }
         }
 
-        return pos != null && !rotating && (count < value.multiPlace.getValue() || value.antiSurr.getValue());
+        return pos != null && !rotating && (count < value.multiPlace.getValue() || (value.antiSurr.getValue() && !BlockUtil.canPlaceCrystal(pos, false, value.newerVer.getValue(), crystals)));
     }
 
     private EnumHand getHand()
