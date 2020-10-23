@@ -20,6 +20,7 @@ PingBypass is a proxy server/client aimed at 1.12.2 Anarchy PvP. It can be used 
 - Ingame just use PingBypassClients command system to toggle modules like AutoCrystal (S-AutoCrystal), AutoTotem (S-AutoTotem) or FakePlayer.
 - AutoCrystal can be on at all times, it only breaks and places if you hold an endcrystal.
 - Note that PingBypass was made for the purpose of CrystalPvP. I wouldn't use it for anything else (travelling, building etc.).
+- https://github.com/3arthqu4ke/PingBypassClient
 
 ## License 
 The content of this project is licensed under the [MIT license](LICENSE).
