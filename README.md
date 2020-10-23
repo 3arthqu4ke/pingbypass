@@ -22,4 +22,4 @@ PingBypass is a proxy server/client aimed at 1.12.2 Anarchy PvP. It can be used 
 - Note that PingBypass was made for the purpose of CrystalPvP. I wouldn't use it for anything else (travelling, building etc.).
 
 ## License 
-The content of this project itself is licensed under the [MIT license](LICENSE).
+The content of this project is licensed under the [MIT license](LICENSE).
