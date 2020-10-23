@@ -1,0 +1,26 @@
+{
+  "required": true,
+  "compatibilityLevel": "JAVA_8",
+  "package": "me.earth.pingbypass.mixin.mixins",
+  "refmap": "mixins.pingbypass.refmap.json",
+  "priority": 2147483647,
+  "mixinPriority": 2147483647,
+  "mixins": [
+    "library.MixinTcpPacketCodec",
+    "library.client.IClientPlayerPacket",
+    "minecraft.MixinMinecraft",
+    "minecraft.entity.MixinEntityPlayerSP",
+    "minecraft.entity.MixinPlayerControllerMP",
+    "minecraft.gui.IContainer",
+    "minecraft.gui.MixinGuiScreen",
+    "minecraft.network.MixinNetHandlerPlayClient",
+    "minecraft.network.MixinNettyPacketEncoder",
+    "minecraft.network.MixinNetworkManager",
+    "minecraft.network.client.ICPacketUseEntity",
+    "minecraft.network.client.MixinC00Handshake",
+    "minecraft.network.server.ISPacketSpawnExperienceOrb",
+    "minecraft.network.server.MixinSPacketSpawnMob",
+    "minecraft.network.server.MixinSPacketSpawnPlayer",
+    "minecraft.render.MixinEntityRenderer"
+  ]
+}

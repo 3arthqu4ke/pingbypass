@@ -1,0 +1,16 @@
+[
+{
+  "modid": "pingbypass",
+  "name": "PingBypass",
+  "description": "A 1.12.2 Proxy Server.",
+  "version": "1.0.0",
+  "mcversion": "1.12.2",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["3arthqu4ke"],
+  "credits": "Steveice10",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
