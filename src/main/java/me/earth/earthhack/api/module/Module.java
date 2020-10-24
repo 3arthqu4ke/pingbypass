@@ -3,8 +3,6 @@ package me.earth.earthhack.api.module;
 import me.earth.earthhack.api.event.bus.api.Listener;
 import me.earth.earthhack.api.event.bus.api.Subscriber;
 import me.earth.earthhack.api.event.bus.instance.Bus;
-import me.earth.earthhack.api.module.data.DefaultData;
-import me.earth.earthhack.api.module.data.ModuleData;
 import me.earth.earthhack.api.setting.Setting;
 import me.earth.earthhack.api.setting.settings.BindSetting;
 import me.earth.earthhack.api.setting.settings.BooleanSetting;
@@ -29,7 +27,6 @@ public abstract class Module extends Hideable implements Globals, Subscriber
     private final Setting<Boolean> enabled;
     private final Setting<Bind> bind;
     private final Category category;
-    private ModuleData data;
 
     public Module(String name, Category category)
     {
@@ -37,7 +34,6 @@ public abstract class Module extends Hideable implements Globals, Subscriber
         this.bind     = register(new BindSetting("Bind", Bind.none()));
         this.enabled  = register(new BooleanSetting("Enabled", false));
         this.category = category;
-        this.data     = new DefaultData<>(this);
     }
 
     public final void toggle()
@@ -103,11 +99,6 @@ public abstract class Module extends Hideable implements Globals, Subscriber
         return category;
     }
 
-    public ModuleData getData()
-    {
-        return data;
-    }
-
     public Bind getBind()
     {
         return bind.getValue();
@@ -126,11 +117,6 @@ public abstract class Module extends Hideable implements Globals, Subscriber
     protected void onLoad()
     {
         /* Implemented by the module */
-    }
-
-    protected void setData(ModuleData data)
-    {
-        this.data = data;
     }
 
     @Override
