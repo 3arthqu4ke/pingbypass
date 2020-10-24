@@ -1,7 +1,7 @@
 package me.earth.pingbypass.client.modules.autocrystal;
 
 import me.earth.earthhack.api.util.Globals;
-import me.earth.earthhack.impl.util.beans.Wrapper;
+import me.earth.earthhack.impl.util.helpers.Wrapper;
 import me.earth.earthhack.impl.util.math.MathUtil;
 import me.earth.earthhack.impl.util.minecraft.DamageUtil;
 import me.earth.earthhack.impl.util.minecraft.EntityUtil;

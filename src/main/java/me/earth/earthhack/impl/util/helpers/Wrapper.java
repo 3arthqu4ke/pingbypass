@@ -1,4 +1,4 @@
-package me.earth.earthhack.impl.util.beans;
+package me.earth.earthhack.impl.util.helpers;
 
 public class Wrapper<T>
 {
