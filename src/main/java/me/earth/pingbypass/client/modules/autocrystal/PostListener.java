@@ -19,7 +19,7 @@ public class PostListener extends ClientPlayerPostListener
     @Override
     protected void onPacket(CPacketEvent.Post<ClientPlayerMovementPacket> event)
     {
-        /* this packet only contains onGround info */
+        module.end(event.getPacket());
     }
 
     @Override

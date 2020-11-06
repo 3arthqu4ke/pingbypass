@@ -27,7 +27,10 @@ public class PreListener extends ClientPlayerListener implements Globals
     @Override
     protected void onPacket(CPacketEvent.Send<ClientPlayerMovementPacket> event)
     {
-        /* This packet only contains the onGround info. */
+        if (module.rotate.getValue() == Rotate.None)
+        {
+            startThread(event.getPacket());
+        }
     }
 
     @Override
