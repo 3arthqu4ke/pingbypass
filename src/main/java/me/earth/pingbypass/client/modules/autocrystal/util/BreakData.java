@@ -1,6 +1,7 @@
 package me.earth.pingbypass.client.modules.autocrystal.util;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 
 public class BreakData
 {
@@ -9,6 +10,7 @@ public class BreakData
     private int count;
     private Entity fallBack;
     private float fallBackDamage = 1000.0f;
+    private EntityPlayer target;
 
     public int getCount()
     {
@@ -57,6 +59,16 @@ public class BreakData
     public void setDamage(float damage)
     {
         this.damage = damage;
+    }
+
+    public EntityPlayer getTarget()
+    {
+        return target;
+    }
+
+    public void setTarget(EntityPlayer target)
+    {
+        this.target = target;
     }
 
 }

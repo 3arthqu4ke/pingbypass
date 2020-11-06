@@ -77,6 +77,7 @@ public class BreakHelper extends Wrapper<AutoCrystal> implements Globals
                     {
                         data.setCrystal(crystal);
                         data.setDamage(damage);
+                        data.setTarget(player);
                     }
                 }
             }

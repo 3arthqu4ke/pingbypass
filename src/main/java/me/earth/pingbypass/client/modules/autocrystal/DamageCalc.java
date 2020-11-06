@@ -97,6 +97,7 @@ public class DamageCalc extends Wrapper<AutoCrystal> implements Runnable, Global
     {
         breakData = breakHelper.createData(players, crystals);
         Entity crystal = breakData.getCrystal();
+        target = breakData.getTarget();
         if (attack(crystal) && (!value.rotate.getValue().noRotate(Rotate.Place) || !value.multiTask.getValue()))
         {
             return 6;
