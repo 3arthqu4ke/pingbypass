@@ -65,14 +65,14 @@ public class SpawnObjectListener extends ModuleListener<AutoCrystal, PacketEvent
 
     private boolean isValid(BlockPos pos)
     {
-        if (mc.player.getDistanceSq(pos) > MathUtil.square(module.breakRange.getValue()))
+        if (mc.player.getDistanceSq(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5) > MathUtil.square(module.breakRange.getValue()))
         {
             return false;
         }
 
-        if (mc.player.getDistanceSq(pos) > MathUtil.square(module.breakTrace.getValue()))
+        if (mc.player.getDistanceSq(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5) > MathUtil.square(module.breakTrace.getValue()))
         {
-            return RayTraceUtil.canBeSeen(new Vec3d(pos.getX() + 0.5, pos.getY() + 1.7, pos.getZ() + 0.5), mc.player);
+            return RayTraceUtil.canBeSeen(new Vec3d(pos.getX() + 0.5, pos.getY() + 1.700000047683716, pos.getZ() + 0.5), mc.player);
         }
 
         return true;

@@ -133,12 +133,12 @@ public class PlaceHelper extends Wrapper<AutoCrystal> implements Globals
 
     private boolean combinedTraceCheck(BlockPos pos)
     {
-        if (mc.player.getDistanceSq(pos) <= MathUtil.square(value.pbTrace.getValue()))
+        if (mc.player.getDistanceSq(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5) <= MathUtil.square(value.pbTrace.getValue()))
         {
             return true;
         }
 
-        return RayTraceUtil.canBeSeen(new Vec3d(pos.getX() + 0.5, pos.getY() + 2.7, pos.getZ() + 0.5), mc.player);
+        return RayTraceUtil.canBeSeen(new Vec3d(pos.getX() + 0.5, pos.getY() + 2.700000047683716, pos.getZ() + 0.5), mc.player);
     }
 
     private List<Entity> getEntityList(PlaceData data)
