@@ -26,7 +26,7 @@ public class PhobosClient implements Globals
         if (packet.getIntent() == HandshakeIntent.LOGIN)
         {
             ServerAddress address = ServerAddress.fromString(packet.getHostName());
-            this.packet = new HandshakePacket(packet.getProtocolVersion(), address.getIP(), address.getPort(), packet.getIntent());
+            this.packet = new HandshakePacket(packet.getProtocolVersion(), address.getIP(), packet.getPort(), packet.getIntent());
         }
     }
 
