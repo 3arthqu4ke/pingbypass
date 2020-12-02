@@ -4,6 +4,8 @@ import me.earth.earthhack.api.module.Module;
 import me.earth.pingbypass.client.modules.autocrystal.AutoCrystal;
 import me.earth.pingbypass.client.modules.autototem.AutoTotem;
 import me.earth.pingbypass.client.modules.fakeplayer.FakePlayer;
+import me.earth.pingbypass.client.modules.inventory.InventoryModule;
+//import me.earth.pingbypass.client.modules.pingspoof.PingSpoof;
 import me.earth.pingbypass.client.modules.safety.Safety;
 import me.earth.pingbypass.client.modules.servermodule.ServerModule;
 
@@ -20,7 +22,9 @@ public class ModuleManager
         modules.add(ServerModule.getInstance());
         modules.add(AutoTotem.getInstance());
         modules.add(FakePlayer.getInstance());
+        modules.add(InventoryModule.getInstance());
         modules.add(Safety.getInstance());
+        //modules.add(PingSpoof.getInstance());
     }
 
     @SuppressWarnings("unchecked")

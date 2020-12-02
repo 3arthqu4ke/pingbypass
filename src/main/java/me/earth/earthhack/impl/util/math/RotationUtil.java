@@ -45,7 +45,7 @@ public class RotationUtil implements Globals
      */
     public static float[] getRotations(Entity entity)
     {
-        return getRotations(entity.posX, entity.posY + entity.getEyeHeight() / 2, entity.posZ);
+        return getRotations(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ);
     }
 
     /**
