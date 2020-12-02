@@ -63,10 +63,10 @@ public class AutoTotem extends Module
     {
         short transactionID = player.openContainer.getNextTransactionID(player.inventory);
         ItemStack before    = player.inventory.getItemStack().copy();
-        ItemStack itemstack = player.openContainer.slotClick(slotId, mouseButton, type, player);
+        ItemStack itemstack = player.openContainer.slotClick(slotId, mouseButton, type, player).copy();
 
         //TODO: make this like not horrible
-        SPacketSetSlot setSlot  = new SPacketSetSlot(windowId, slotId, before);
+        SPacketSetSlot setSlot  = new SPacketSetSlot(-2, slotId, before);
         SPacketSetSlot setMouse = new SPacketSetSlot(transactionID, -1, itemstack); // update transaction id and set mouse slot.
         PingBypass.server.sendToClient(setSlot);
         PingBypass.server.sendToClient(setMouse);
