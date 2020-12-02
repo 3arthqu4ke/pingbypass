@@ -67,7 +67,7 @@ public class AutoTotem extends Module
 
         //TODO: make this like not horrible
         SPacketSetSlot setSlot  = new SPacketSetSlot(-2, slotId, before);
-        SPacketSetSlot setMouse = new SPacketSetSlot(transactionID, -1, itemstack); // update transaction id and set mouse slot.
+        SPacketSetSlot setMouse = new SPacketSetSlot(transactionID, -1337, itemstack); // update transaction id and set mouse slot.
         PingBypass.server.sendToClient(setSlot);
         PingBypass.server.sendToClient(setMouse);
 
