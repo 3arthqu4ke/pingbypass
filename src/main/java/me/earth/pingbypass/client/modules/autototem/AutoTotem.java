@@ -66,7 +66,7 @@ public class AutoTotem extends Module
         ItemStack itemstack = player.openContainer.slotClick(slotId, mouseButton, type, player).copy();
 
         //TODO: make this like not horrible
-        SPacketSetSlot setSlot  = new SPacketSetSlot(-2, slotId, before);
+        SPacketSetSlot setSlot  = new SPacketSetSlot(-128, slotId, before); // SPacketSetSlot can't set the XCarry so I'll just make a custom packet.
         SPacketSetSlot setMouse = new SPacketSetSlot(transactionID, -1337, itemstack); // update transaction id and set mouse slot.
         PingBypass.server.sendToClient(setSlot);
         PingBypass.server.sendToClient(setMouse);

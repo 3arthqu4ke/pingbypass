@@ -23,14 +23,14 @@ public class TickListener extends ModuleListener<InventoryModule, TickEvent>
         if (mc.player != null && timer.passed(module.delay.getValue() * 1000))
         {
             ItemStack offhand = mc.player.getHeldItemOffhand().copy();
-            PingBypass.server.sendToClient(new SPacketSetSlot(-2, 45, offhand));
+            PingBypass.server.sendToClient(new SPacketSetSlot(-2, 40, offhand));
 
             ItemStack cursor = mc.player.inventory.getItemStack().copy();
             PingBypass.server.sendToClient(new SPacketSetSlot(-1, -1, cursor));
 
-            for (int i = 5; i < 9; i++)
+            for (int i = 36; i < 40; i++)
             {
-                ItemStack stack = mc.player.inventoryContainer.getSlot(i).getStack().copy();
+                ItemStack stack = mc.player.inventory.getStackInSlot(i).copy();
                 PingBypass.server.sendToClient(new SPacketSetSlot(-2, i, stack));
             }
 
