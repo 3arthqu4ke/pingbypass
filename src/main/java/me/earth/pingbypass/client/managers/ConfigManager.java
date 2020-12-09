@@ -49,6 +49,17 @@ public class ConfigManager
                 e.printStackTrace();
             }
         }
+        else
+        {
+            try
+            {
+                Files.createFile(Paths.get(file.getPath()));
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void save() throws IOException
