@@ -31,6 +31,7 @@ public class PhobosServer implements Globals
         sessionManager = new SessionManager();
         Bus.EVENT_BUS.subscribe(new SPacketManager(this));
         createServer(host, port);
+        bind();
     }
 
     public void sendToClient(String message)
@@ -87,7 +88,6 @@ public class PhobosServer implements Globals
         server.setGlobalFlag(VERIFY_USERS_KEY, false);
         server.addListener(new ServerManager(this));
         ShutDownHook.create(server);
-        bind();
     }
 
     private void bind()
@@ -99,7 +99,9 @@ public class PhobosServer implements Globals
         catch (Exception e)
         {
             e.printStackTrace();
-            createServer(ServerModule.getInstance().getIP(), ServerUtil.findEmptyPort());
+            server = new Server(server.getHost(), ServerUtil.findEmptyPort(), MinecraftProtocol.class, new TcpSessionFactory());
+            server.setGlobalFlag(VERIFY_USERS_KEY, false);
+            server.addListener(new ServerManager(this));
             server.bind(true);
         }
     }

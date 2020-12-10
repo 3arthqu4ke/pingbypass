@@ -13,11 +13,9 @@ public class ServerUtil implements Globals
     {
         int port = 25560;
 
-        try
+        try (ServerSocket socket = new ServerSocket(0))
         {
-            ServerSocket socket = new ServerSocket(0);
             port = socket.getLocalPort();
-            socket.close();
         }
         catch (IOException io)
         {
