@@ -95,6 +95,10 @@ public class PhobosServer implements Globals
         try
         {
             server.bind(true);
+            PingBypass.logger.info("Server bound to "
+                                    + server.getHost()
+                                    + " : "
+                                    + server.getPort());
         }
         catch (Exception e)
         {
@@ -103,6 +107,10 @@ public class PhobosServer implements Globals
             server.setGlobalFlag(VERIFY_USERS_KEY, false);
             server.addListener(new ServerManager(this));
             server.bind(true);
+            PingBypass.logger.info("Server bound to "
+                    + server.getHost()
+                    + " : "
+                    + server.getPort());
         }
     }
 
