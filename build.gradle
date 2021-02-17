@@ -8,7 +8,7 @@ buildscript {
         }
         maven {
             name = 'SpongePowered'
-            url = 'http://repo.spongepowered.org/maven'
+            url = 'https://repo.spongepowered.org/maven'
         }
         maven {
             name = "jitpack.io"
@@ -48,7 +48,7 @@ repositories {
     mavenCentral()
     maven {
         name = 'spongepowered-repo'
-        url = 'http://repo.spongepowered.org/maven/'
+        url = 'https://repo.spongepowered.org/maven/'
     }
     jcenter()
 }
