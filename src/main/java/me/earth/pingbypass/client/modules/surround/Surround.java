@@ -30,6 +30,7 @@ public class Surround extends Module {
     private Surround() {
         super("S-Surround", Category.Combat);
         this.listeners.add(new TickListener(this));
+        this.listeners.add(new DisconnectListener(this));
     }
 
     public static Surround getInstance() {
