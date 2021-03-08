@@ -6,7 +6,7 @@ PingBypass is a proxy server/client aimed at 1.12.2 Anarchy PvP. It can be used 
 - Get a server, preferably hosted as close to the server you want to play on as possible.
 - Install Java-8, the Minecraft 1.12.2 client and forge for that version on the server.
 - Drag the PingBypass.jar into the mods folder on the server.
-- Run the game once then close it, this should create the Server.json file in your in your servers minecraft folder which is used to configure the proxy.
+- Run the game once then close it, this should create the Server.json file in your servers minecraft folder which is used to configure the proxy.
 - Open the file, type in IP and port.
 - The IP should be the internal IP of your server (not 127.0.0.0), the port should be a forwarded port (not 25565 (minecraft) or other important ports).
 - Now run the game, everything else is done from your pc.
