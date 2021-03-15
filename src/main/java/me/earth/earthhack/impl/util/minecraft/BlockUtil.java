@@ -230,8 +230,6 @@ public class BlockUtil implements Globals
                     mc.world, blockToPlace, side2, hitVec, hand);
             mc.player.swingArm(hand);
             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
-
-            return;
         }
     }
 }
