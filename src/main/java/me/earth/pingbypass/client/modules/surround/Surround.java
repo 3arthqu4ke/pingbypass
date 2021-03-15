@@ -24,7 +24,7 @@ public class Surround extends Module {
 
     private static final Surround INSTANCE = new Surround();
 
-    final Setting<Boolean> center = register(new BooleanSetting("Center", true));
+    private final Setting<Boolean> center = register(new BooleanSetting("Center", true));
     private BlockPos surroundPos = new BlockPos(0, -100, 0);
 
     private Surround() {
