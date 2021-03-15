@@ -8,6 +8,7 @@ import me.earth.pingbypass.client.modules.inventory.InventoryModule;
 //import me.earth.pingbypass.client.modules.pingspoof.PingSpoof;
 import me.earth.pingbypass.client.modules.safety.Safety;
 import me.earth.pingbypass.client.modules.servermodule.ServerModule;
+import me.earth.pingbypass.client.modules.surround.Surround;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class ModuleManager
         modules.add(FakePlayer.getInstance());
         modules.add(InventoryModule.getInstance());
         modules.add(Safety.getInstance());
+        modules.add(Surround.getInstance());
         //modules.add(PingSpoof.getInstance());
     }
 
