@@ -54,6 +54,7 @@ public class ConfigManager
             try
             {
                 Files.createFile(Paths.get(file.getPath()));
+                save();
             }
             catch (IOException e)
             {
