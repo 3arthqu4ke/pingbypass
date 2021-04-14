@@ -1,6 +1,7 @@
 package me.earth.pingbypass.server.managers;
 
 import me.earth.earthhack.api.event.bus.SubscriberImpl;
+import me.earth.earthhack.api.util.Globals;
 import me.earth.earthhack.impl.event.events.PacketEvent;
 import me.earth.pingbypass.server.PhobosServer;
 import me.earth.pingbypass.server.managers.listeners.PacketReceiveListener;
@@ -16,9 +17,11 @@ import net.minecraft.network.login.server.SPacketLoginSuccess;
 import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.client.CPacketClickWindow;
+import net.minecraft.network.play.client.CPacketConfirmTransaction;
 import net.minecraft.network.play.client.CPacketKeepAlive;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.client.CPacketUseEntity;
+import net.minecraft.network.play.server.SPacketConfirmTransaction;
 import net.minecraft.network.play.server.SPacketKeepAlive;
 
 import java.util.HashSet;
@@ -30,7 +33,7 @@ import java.util.Set;
  * and blocks packets that the minecraft client
  * underneath the proxy would send.
  */
-public class SPacketManager extends SubscriberImpl
+public class SPacketManager extends SubscriberImpl implements Globals
 {
     private final Set<Class<? extends Packet<?>>> cPackets = new HashSet<>();
     private final Set<Class<? extends Packet<?>>> sPackets = new HashSet<>();
@@ -45,7 +48,6 @@ public class SPacketManager extends SubscriberImpl
         cPackets.add(C00Handshake.class);
         cPackets.add(CPacketEncryptionResponse.class);
         cPackets.add(CPacketKeepAlive.class);
-
         // Add authorized packets like in last Pingbypass?
         // For now these are the only ones we need tho.
         cPackets.add(CPacketChatMessage.class);
@@ -53,6 +55,7 @@ public class SPacketManager extends SubscriberImpl
         cPackets.add(CPacketPlayerTryUseItemOnBlock.class);
         cPackets.add(CPacketAnimation.class);
         cPackets.add(CPacketClickWindow.class);
+        cPackets.add(CPacketConfirmTransaction.class);
 
         sPackets.add(SPacketEncryptionRequest.class);
         sPackets.add(SPacketEnableCompression.class);
@@ -66,6 +69,26 @@ public class SPacketManager extends SubscriberImpl
     public void onPacketReceive(PacketEvent.Receive<?> event)
     {
         Packet<?> packet = event.getPacket();
+        // Quick and dirty fix for AntiPingSpoof
+        if (packet instanceof SPacketConfirmTransaction)
+        {
+            SPacketConfirmTransaction p = (SPacketConfirmTransaction) packet;
+            if (!p.wasAccepted()
+                    && (p.getWindowId() == 0
+                            ? mc.player.inventoryContainer
+                            : mc.player.openContainer) != null)
+            {
+                mc.player
+                  .connection
+                  .sendPacket(
+                    new CPacketConfirmTransaction(p.getWindowId(),
+                                                  p.getActionNumber(),
+                                                  true));
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         if (!sPackets.contains(packet.getClass()))
         {
             server.sendToClient(packet);
