@@ -3,6 +3,7 @@ package me.earth.pingbypass.server.nethandler;
 import com.github.steveice10.mc.protocol.packet.handshake.client.HandshakePacket;
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientChatPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientKeepAlivePacket;
+import com.github.steveice10.mc.protocol.packet.ingame.client.ClientResourcePackStatusPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerChangeHeldItemPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerPositionPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
@@ -51,6 +52,7 @@ public class NetHandlerPlayPhobos
         handlers.put(ClientPlayerChangeHeldItemPacket.class, new HeldItemHandler());
         handlers.put(ClientCloseWindowPacket.class, new CloseWindowHandler());
         handlers.put(ClientChatPacket.class, new ChatHandler());
+        handlers.put(ClientResourcePackStatusPacket.class, new SimpleHandler());
     }
 
     @SuppressWarnings("unchecked")

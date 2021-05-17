@@ -7,8 +7,10 @@ import me.earth.earthhack.impl.util.math.RayTraceUtil;
 import me.earth.earthhack.impl.util.math.RotationUtil;
 import me.earth.earthhack.impl.util.minecraft.DamageUtil;
 import me.earth.earthhack.impl.util.minecraft.EntityUtil;
+import me.earth.pingbypass.PingBypass;
 import me.earth.pingbypass.client.modules.autocrystal.modes.Rotate;
 import me.earth.pingbypass.mixin.mixins.minecraft.network.client.ICPacketUseEntity;
+import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketAnimation;
@@ -18,7 +20,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class SpawnObjectListener extends ModuleListener<AutoCrystal, PacketEvent.Receive<SPacketSpawnObject>>
+public class SpawnObjectListener extends
+        ModuleListener<AutoCrystal, PacketEvent.Receive<SPacketSpawnObject>>
 {
     protected SpawnObjectListener(AutoCrystal module)
     {
@@ -31,14 +34,14 @@ public class SpawnObjectListener extends ModuleListener<AutoCrystal, PacketEvent
         if (module.instant.getValue())
         {
             SPacketSpawnObject packet = event.getPacket();
-            EntityPlayer target = module.currentTarget;
-            if (packet.getType() == 51 && target != null && !EntityUtil.isDead(target) && mc.player != null)
+            if (packet.getType() == 51 && mc.player != null)
             {
                 BlockPos pos = new BlockPos(packet.getX(), packet.getY(), packet.getZ());
-                if (module.positions.contains(pos) && isValid(pos) && rotationCheck(pos))
+                if (module.positions.remove(pos) && isValid(pos) && rotationCheck(pos))
                 {
                     float damage = DamageUtil.calculate(pos);
-                    if (damage <= module.maxSelfB.getValue() && damage < EntityUtil.getHealth(mc.player) + 1.0)
+                    if (damage <= module.maxSelfB.getValue()
+                            && damage < EntityUtil.getHealth(mc.player) + 1.0)
                     {
                         attack(packet);
                     }

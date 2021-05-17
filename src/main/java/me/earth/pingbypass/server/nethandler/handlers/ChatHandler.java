@@ -12,6 +12,7 @@ public class ChatHandler implements IHandler<ClientChatPacket>
         String message = packet.getMessage();
         if (message.startsWith("@Server"))
         {
+            PingBypass.logger.info("Received Command: " + message);
             String command = message.substring(7);
             PingBypass.commandManager.onMessage(command);
             return false;

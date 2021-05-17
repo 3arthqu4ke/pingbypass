@@ -11,7 +11,8 @@ package me.earth.earthhack.impl.util.math;
 public class GuardTimer implements DiscreteTimer
 {
     private final StopWatch guard = new StopWatch();
-    private long guardDelay;
+    private final long interval;
+    private final long guardDelay;
     private long delay;
     private long time;
 
@@ -22,40 +23,35 @@ public class GuardTimer implements DiscreteTimer
 
     public GuardTimer(long guardDelay)
     {
+        this(guardDelay, 10);
+    }
+
+    public GuardTimer(long guardDelay, long interval)
+    {
         this.guardDelay = guardDelay;
+        this.interval = interval;
     }
 
     @Override
     public boolean passed(long ms)
     {
-        return System.nanoTime() - time >= ms * 1000000;
+        return ms == 0 || System.currentTimeMillis() - time >= ms;
     }
 
     @Override
     public DiscreteTimer reset(long ms)
     {
-        if (this.delay != ms || guard.passed(guardDelay))
+        if (ms <= interval || this.delay != ms || guard.passed(guardDelay))
         {
             this.delay = ms;
             reset();
         }
         else
         {
-            time = ms * 1000000 + time;
+            time = ms + time;
         }
 
         return this;
-    }
-
-    /**
-     * Sets the delay with which the timer gets
-     * hard reset.
-     *
-     * @param guardDelay the new guardDelay.
-     */
-    public void setGuard(long guardDelay)
-    {
-        this.guardDelay = guardDelay;
     }
 
     /**
@@ -64,8 +60,9 @@ public class GuardTimer implements DiscreteTimer
      */
     public void reset()
     {
-        time = System.nanoTime();
+        time = System.currentTimeMillis();
         guard.reset();
     }
 
 }
+

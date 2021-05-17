@@ -8,7 +8,6 @@ import me.earth.earthhack.api.event.bus.instance.Bus;
 import me.earth.earthhack.api.util.Globals;
 import me.earth.earthhack.impl.util.text.TextColor;
 import me.earth.pingbypass.PingBypass;
-import me.earth.pingbypass.client.modules.servermodule.ServerModule;
 import me.earth.pingbypass.server.managers.SPacketManager;
 import me.earth.pingbypass.server.managers.ServerManager;
 import me.earth.pingbypass.server.managers.SessionManager;
@@ -94,6 +93,8 @@ public class PhobosServer implements Globals
     {
         try
         {
+            PingBypass.logger.info("Binding PingBypass to port: "
+                    + server.getHost() + " : " + server.getPort() + ".");
             server.bind(true);
             PingBypass.logger.info("Server bound to "
                                     + server.getHost()
@@ -103,7 +104,10 @@ public class PhobosServer implements Globals
         catch (Exception e)
         {
             e.printStackTrace();
-            server = new Server(server.getHost(), ServerUtil.findEmptyPort(), MinecraftProtocol.class, new TcpSessionFactory());
+            int empty = ServerUtil.findEmptyPort();
+            PingBypass.logger.info("Binding to other empty to port: "
+                    + server.getHost() + " : " + empty + ".");
+            server = new Server(server.getHost(), empty, MinecraftProtocol.class, new TcpSessionFactory());
             server.setGlobalFlag(VERIFY_USERS_KEY, false);
             server.addListener(new ServerManager(this));
             server.bind(true);

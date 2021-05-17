@@ -21,13 +21,14 @@ public class SoundListener extends ModuleListener<AutoCrystal, PacketEvent.Recei
     public void invoke(PacketEvent.Receive<SPacketSoundEffect> event)
     {
         SPacketSoundEffect packet = event.getPacket();
-        if (packet.getCategory() == SoundCategory.BLOCKS && packet.getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE)
+        if (packet.getCategory() == SoundCategory.BLOCKS
+                && packet.getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE)
         {
             BlockPos pos = new BlockPos(packet.getX(), packet.getY(), packet.getZ());
-            if (module.positions.remove(pos))
+            /*if (module.positions.remove(pos))
             {
                 module.confirmed = true;
-            }
+            }*/
 
             if (module.soundR.getValue())
             {
@@ -44,7 +45,6 @@ public class SoundListener extends ModuleListener<AutoCrystal, PacketEvent.Recei
             {
                 if (entity instanceof EntityEnderCrystal && entity.getDistanceSq(pos) <= 36)
                 {
-                    module.positions.remove(PositionUtil.getPosition(entity));
                     entity.setDead();
                 }
             }

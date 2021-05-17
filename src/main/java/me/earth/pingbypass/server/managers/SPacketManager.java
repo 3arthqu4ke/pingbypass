@@ -20,6 +20,7 @@ import net.minecraft.network.play.client.CPacketClickWindow;
 import net.minecraft.network.play.client.CPacketConfirmTransaction;
 import net.minecraft.network.play.client.CPacketKeepAlive;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
+import net.minecraft.network.play.client.CPacketResourcePackStatus;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.network.play.server.SPacketConfirmTransaction;
 import net.minecraft.network.play.server.SPacketKeepAlive;
@@ -56,6 +57,7 @@ public class SPacketManager extends SubscriberImpl implements Globals
         cPackets.add(CPacketAnimation.class);
         cPackets.add(CPacketClickWindow.class);
         cPackets.add(CPacketConfirmTransaction.class);
+        cPackets.add(CPacketResourcePackStatus.class);
 
         sPackets.add(SPacketEncryptionRequest.class);
         sPackets.add(SPacketEnableCompression.class);
