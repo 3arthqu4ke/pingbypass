@@ -1,3 +1,5 @@
+> :warning: This project is now outdated. The new PingBypass proxy [here](https://github.com/3arthqu4ke/3arthh4ck) is much more powerful. E.g. it allows you to leave the proxy connected to the server and join through it at a later point.
+
 # PingBypass
 
 PingBypass is a proxy server/client aimed at 1.12.2 Anarchy PvP. It can be used as a (slow) VPN and more importantly runs its own AutoCrystal and AutoTotem.
