@@ -1,0 +1,7 @@
+dependencies {
+    compileOnly ('me.earth.headlessmc:headlessmc:1.8.0') {
+        exclude module: 'headlessmc-runtime'
+        exclude module: 'headlessmc-launcher'
+        exclude module: 'headlessmc-lwjgl'
+    }
+}

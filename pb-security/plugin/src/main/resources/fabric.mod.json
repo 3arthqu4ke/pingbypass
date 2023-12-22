@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "pingbypass-server",
+  "version": "0.0.1",
+  "name": "PingBypass-Security",
+  "description": "PingBypass-Security module",
+  "authors": ["3arthqu4ke"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {},
+  "mixins": [
+    "mixins.pingbypass_security.json"
+  ],
+  "depends": { "fabricloader": ">=0.11.0", "minecraft": "*" }
+}

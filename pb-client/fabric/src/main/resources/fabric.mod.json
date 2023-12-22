@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "pingbypass-client",
+  "version": "0.0.1",
+  "name": "PingBypass-Client",
+  "description": "PingBypass-Client for 1.20.1",
+  "authors": ["3arthqu4ke"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": { },
+  "mixins": [
+    "mixins.pingbypass_commons.json",
+    "mixins.pingbypass_client.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.0",
+    "minecraft": ">=1.20 <=1.20.1"
+  }
+}

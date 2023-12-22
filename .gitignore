@@ -1,0 +1,33 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+
+/HeadlessMC/
+/.vscode/
+/logs/
+pb-*/logs/
+pb-security/*/logs/
+pb-security/plugin/test/
+/pingbypass/
+/pb-commons/logs/
+/pb-server/logs/
+/pb-client/logs/

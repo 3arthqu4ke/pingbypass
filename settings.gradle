@@ -1,0 +1,72 @@
+pluginManagement {
+    repositories {
+        maven {
+            name = 'JitpackPluginMaven'
+            url = 'https://jitpack.io'
+        }
+
+        gradlePluginPortal() {
+            content {
+                excludeGroup "org.apache.logging.log4j"
+            }
+        }
+
+        mavenCentral()
+
+        maven {
+            name = 'ArchitecturyMaven'
+            url = 'https://maven.architectury.dev/'
+        }
+        maven {
+            name = 'FabricMaven'
+            url = 'https://maven.fabricmc.net/'
+        }
+        maven {
+            name = 'ForgeMaven'
+            url = 'https://files.minecraftforge.net/maven'
+        }
+
+        mavenLocal()
+
+        maven {
+            name = 'WagYourTailMaven'
+            url = 'https://maven.wagyourtail.xyz/snapshots'
+        }
+
+        resolutionStrategy {
+            eachPlugin {
+                if (requested.id.toString() == "xyz.wagyourtail.unimined") {
+                    useModule("com.github.3arthqu4ke:unimined:b536a54772")
+                }
+            }
+        }
+    }
+}
+
+rootProject.name = 'pingbypass'
+include 'pb-api'
+include 'pb-client'
+include 'pb-server'
+include 'pb-commons'
+
+include 'pb-security-api'
+project(':pb-security-api').projectDir = file('pb-security/api')
+include 'pb-security-lib'
+project(':pb-security-lib').projectDir = file('pb-security/lib')
+include 'pb-security-plugin'
+project(':pb-security-plugin').projectDir = file('pb-security/plugin')
+
+include 'pb-client-fabric'
+project(':pb-client-fabric').projectDir = file('pb-client/fabric')
+include 'pb-client-forge'
+// TODO: option to disable and ignore all forge subprojects?!
+project(':pb-client-forge').projectDir = file('pb-client/forge')
+include 'pb-client-forgerunner'
+project(':pb-client-forgerunner').projectDir = file('pb-client/forgerunner')
+
+include 'pb-server-fabric'
+project(':pb-server-fabric').projectDir = file('pb-server/fabric')
+include 'pb-server-forge'
+project(':pb-server-forge').projectDir = file('pb-server/forge')
+include 'pb-server-forgerunner'
+project(':pb-server-forgerunner').projectDir = file('pb-server/forgerunner')

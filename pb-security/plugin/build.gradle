@@ -1,0 +1,33 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+sourceSets {
+    mock
+}
+
+dependencies {
+    // TODO: surely we can exclude like 90% of the stuff in this? Proguard?
+    jarLibsApi group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.70'
+    jarLibsApi project(':pb-security-api')
+    jarLibsApi project(':pb-security-lib')
+    jarLibsApi project(':pb-api')
+    compileOnly sourceSets.mock.output
+}
+
+shadowJar {
+    configurations = [project.configurations.jarLibsApi, project.configurations.jarLibsImplementation]
+    classifier 'release'
+}
+
+jar {
+    dependsOn project(':pb-security-api')['jar']
+    dependsOn project(':pb-security-lib')['jar']
+
+    manifest {
+        attributes(
+            'PingBypassPluginConfig': 'SecurityPluginConfig.json',
+            'Main-Class': 'me.earth.pingbypass.security.Main'
+        )
+    }
+
+    finalizedBy(shadowJar)
+}

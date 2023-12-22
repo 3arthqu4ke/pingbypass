@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "me.earth.pingbypass.server.mixins",
+  "refmap": "mixins.pingbypass_server.refmap.json",
+  "plugin": "me.earth.pingbypass.server.launch.ServerMixinConfigPlugin",
+  "compatibilityLevel": "JAVA_17",
+  "injectors": {
+    "maxShiftBy": 10
+  },
+  "mixins": [
+    "MixinMain",
+    "MixinMinecraft",
+    "MixinTitleScreen",
+    "headlessmc.MixinCommandContextImpl"
+  ]
+}

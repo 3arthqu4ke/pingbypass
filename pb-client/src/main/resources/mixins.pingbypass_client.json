@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "me.earth.pingbypass.client.mixins",
+  "refmap": "mixins.pingbypass_client.refmap.json",
+  "plugin": "me.earth.pingbypass.client.launch.ClientMixinConfigPlugin",
+  "compatibilityLevel": "JAVA_17",
+  "injectors": {
+    "maxShiftBy": 10
+  },
+  "mixins": [
+    "MixinKeyboardHandler",
+    "MixinMain",
+    "MixinMinecraft",
+    "MixinMouseHandler"
+  ]
+}
