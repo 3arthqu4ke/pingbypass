@@ -1,0 +1,61 @@
+name: Build Project
+
+on:
+  push:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build sources jar
+        run: ./gradlew cleanExceptUniminedCache sourcesJar
+
+      - name: Build javadoc jar
+        run: ./gradlew javadocJar
+
+      - name: Build jars
+        run: ./gradlew build
+
+      - name: Upload client fabric jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: PingBypass
+          path: ./pb-client/fabric/build/libs/pb-client*-release.jar
+
+      - name: Upload server fabric jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: PingBypass
+          path: ./pb-server/fabric/build/libs/pb-server*-release.jar
+
+      - name: Upload client forge jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: PingBypass
+          path: ./pb-client/forge/build/libs/pb-client*-release.jar
+
+      - name: Upload server forge jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: PingBypass
+          path: ./pb-server/forge/build/libs/pb-server*-release.jar
+
+      - name: Upload security plugin jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: PingBypass
+          path: ./pb-security/plugin/build/libs/pb-security*-release.jar
