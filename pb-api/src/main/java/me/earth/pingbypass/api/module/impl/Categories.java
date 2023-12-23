@@ -15,6 +15,7 @@ public class Categories extends OrderedRegistryImpl<Category> implements Categor
         this.register(COMBAT);
         this.register(MISC);
         this.register(RENDER);
+        this.register(MOVEMENT);
         this.register(CLIENT);
     }
 
