@@ -1,5 +1,4 @@
 <!--suppress HtmlDeprecatedAttribute -->
-<br>
 <h1 align="center">
   PingBypass
 </h1>
