@@ -27,6 +27,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.io.File;
+
 @Mixin(Minecraft.class)
 public abstract class MixinMinecraft {
     @Shadow
@@ -74,7 +76,7 @@ public abstract class MixinMinecraft {
     }
 
     @Inject(method = "crash", at = @At("HEAD"))
-    private static void crashHook(CrashReport crashReport, CallbackInfo ci) {
+    private static void crashHook(Minecraft mc, File file, CrashReport crashReport, CallbackInfo ci) {
         PingBypassApi.getEventBus().post(new ShutdownEvent());
     }
 

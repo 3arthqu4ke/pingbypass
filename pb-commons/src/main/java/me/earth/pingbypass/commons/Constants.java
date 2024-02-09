@@ -22,7 +22,7 @@ public interface Constants {
     String NAME_LOW = "pingbypass";
     String VERSION = "0.0.1";
     String NAME_VERSION = NAME + "-" + VERSION;
-    String MC = "1.20.1";
+    String MC = "1.20.4";
     int MC_PROTOCOL = SharedConstants.getProtocolVersion();
     int DEFAULT_PORT = 25565;
     @SuppressWarnings("deprecation")

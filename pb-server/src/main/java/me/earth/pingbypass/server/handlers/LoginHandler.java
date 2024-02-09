@@ -57,9 +57,9 @@ public class LoginHandler implements ServerLoginPacketListener, TickablePacketLi
     public void handleHello(ServerboundHelloPacket packet) {
         Validate.validState(this.state == State.HELLO, "Unexpected hello packet");
         Validate.validState(isValidUsername(packet.name()), "Invalid characters in username");
-        this.session.setUuid(packet.profileId().orElse(null));
+        //this.session.setUuid(packet.profileId().orElse(null));
         this.session.setUserName(packet.name());
-        this.gameProfile = new GameProfile(packet.profileId().orElse(null), packet.name());
+        //this.gameProfile = new GameProfile(packet.profileId().orElse(null), packet.name());
         if (server.getServerConfig().get(ServerConstants.ENCRYPT) && !getConnection().isMemoryConnection()) {
             this.state = State.KEY;
             getConnection().send(new ClientboundHelloPacket("", ServerConstants.KEY_PAIR.getPublic().getEncoded(), this.challenge));
@@ -99,8 +99,13 @@ public class LoginHandler implements ServerLoginPacketListener, TickablePacketLi
     }
 
     @Override
-    public void handleCustomQueryPacket(@NotNull ServerboundCustomQueryPacket serverboundCustomQueryPacket) {
+    public void handleCustomQueryPacket(@NotNull ServerboundCustomQueryAnswerPacket serverboundCustomQueryPacket) {
         this.disconnect(Component.translatable("multiplayer.disconnect.unexpected_query_response"));
+    }
+
+    @Override
+    public void handleLoginAcknowledgement(ServerboundLoginAcknowledgedPacket packet) {
+
     }
 
     public void disconnect(Component component) {
@@ -114,9 +119,9 @@ public class LoginHandler implements ServerLoginPacketListener, TickablePacketLi
     }
 
     public void handleAcceptedLogin() {
-        if (!Objects.requireNonNull(this.gameProfile).isComplete()) {
+        /*if (!Objects.requireNonNull(this.gameProfile).isComplete()) {
             this.gameProfile = this.createFakeProfile(this.gameProfile);
-        }
+        }*/
 
         if (!server.getSessionManager().requestPrimarySession(session)) {
             server.getSessionManager().disconnect(session, literal("Someone is already connected to this PingBypass!"));

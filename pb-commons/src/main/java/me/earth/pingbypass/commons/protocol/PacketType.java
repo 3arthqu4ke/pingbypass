@@ -7,10 +7,10 @@ import me.earth.pingbypass.commons.ducks.network.IConnectionProtocol;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
-import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.login.ClientboundCustomQueryPacket;
-import net.minecraft.network.protocol.login.ServerboundCustomQueryPacket;
+import net.minecraft.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 
 import static net.minecraft.network.ConnectionProtocol.LOGIN;
 import static net.minecraft.network.ConnectionProtocol.PLAY;
@@ -21,7 +21,7 @@ import static net.minecraft.network.protocol.PacketFlow.SERVERBOUND;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class PacketType {
     public static final PacketType S2C_LOGIN = new PacketType(LOGIN, CLIENTBOUND, ClientboundCustomQueryPacket.class);
-    public static final PacketType C2S_LOGIN = new PacketType(LOGIN, SERVERBOUND, ServerboundCustomQueryPacket.class);
+    public static final PacketType C2S_LOGIN = new PacketType(LOGIN, SERVERBOUND, ServerboundCustomQueryAnswerPacket.class);
     public static final PacketType S2C_PLAY = new PacketType(PLAY, CLIENTBOUND, ClientboundCustomPayloadPacket.class);
     public static final PacketType C2S_PLAY = new PacketType(PLAY, SERVERBOUND, ServerboundCustomPayloadPacket.class);
 

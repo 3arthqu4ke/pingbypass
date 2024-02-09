@@ -80,11 +80,11 @@ allprojects {
     dependencies {
         compileOnly 'org.jetbrains:annotations:24.0.1'
 
-        compileOnly 'org.projectlombok:lombok:1.18.26'
-        annotationProcessor 'org.projectlombok:lombok:1.18.26'
+        compileOnly 'org.projectlombok:lombok:1.18.30'
+        annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
-        testCompileOnly 'org.projectlombok:lombok:1.18.26'
-        testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+        testCompileOnly 'org.projectlombok:lombok:1.18.30'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
@@ -257,7 +257,7 @@ allprojects {
             mappings "net.fabricmc:intermediary:${rootProject.mc_version}:v2"
             mappings "net.minecraft:minecraft:${rootProject.mc_version}:client-mappings"
             // parchment should resolve some parameter names
-            mappings "org.parchmentmc.data:parchment-1.20.1:2023.07.30@zip"
+            mappings "org.parchmentmc.data:parchment-1.20.2:2023.12.10@zip"
         }
 
         // TODO: this can cause problems with other processes (projects) trying to access the minecraft libraries
@@ -289,7 +289,8 @@ allprojects {
 
             // Added because Runtime Remapping does not seem to remap methods rn if we just place the jar in the mods folder
             if (rootProject.property('hmc.specifics').toBoolean()) {
-                // TODO: instead of 1.20.1-1.2.2 use set mc version
+                // TODO: make 1.20.4 release for specifics!!!
+                // TODO: instead of 1.20.4-1.2.2 use set mc version
                 // TODO: Hmc-Specifics: Bad Maven pub leads to lots of warnings about duplicate classes!
                 modImplementation "me.earth.headlessmc:hmc-specifics-fabric:1.20.1-1.2.2"
             }

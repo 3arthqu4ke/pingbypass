@@ -4,7 +4,7 @@ import lombok.Cleanup;
 import lombok.Getter;
 import me.earth.pingbypass.api.event.EventBusImpl;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.network.protocol.game.ClientboundPingPacket;
+import net.minecraft.network.protocol.common.ClientboundPingPacket;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import org.junit.jupiter.api.Test;
 

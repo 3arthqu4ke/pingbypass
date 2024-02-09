@@ -11,7 +11,9 @@ import me.earth.pingbypass.commons.protocol.login.s2c.S2CValidateClientPacket;
 import me.earth.pingbypass.security.CipherUtil;
 import me.earth.pingbypass.server.PingBypassServer;
 import me.earth.pingbypass.server.session.Session;
+import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketFlow;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -35,10 +37,10 @@ public class ServerLoginHandlerImpl implements IHandler, ServerLoginHandler {
 
     @Override
     public void processValidateServer(C2SValidateServerPacket packet) {
-        if (packet.getTransactionId() != transactionId) {
+        /*if (packet.getTransactionId() != transactionId) {
             server.getSessionManager().disconnect(session, Component.literal("Invalid transaction id"));
             return;
-        }
+        }*/
 
         Optional<PublicKey> publicKey = server.getSecurityManager().getPublicKey(packet.getClientId());
         if (publicKey.isPresent()) {
@@ -60,10 +62,10 @@ public class ServerLoginHandlerImpl implements IHandler, ServerLoginHandler {
 
     @Override
     public void processStartLogin(C2SStartLoginPacket packet) {
-        if (packet.getTransactionId() != transactionId) {
+        /*if (packet.getTransactionId() != transactionId) {
             server.getSessionManager().disconnect(session, Component.literal("Invalid transaction id"));
             return;
-        }
+        }*/
 
         if (!validated.get()) {
             server.getSessionManager().disconnect(session, Component.literal("Client has not authenticated yet!"));
@@ -73,4 +75,13 @@ public class ServerLoginHandlerImpl implements IHandler, ServerLoginHandler {
 
     }
 
+    @Override
+    public PacketFlow flow() {
+        return null;
+    }
+
+    @Override
+    public ConnectionProtocol protocol() {
+        return null;
+    }
 }

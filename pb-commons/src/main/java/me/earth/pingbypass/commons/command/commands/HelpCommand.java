@@ -18,6 +18,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.Map;
 
+// TODO: do not list module commands?
 public final class HelpCommand extends AbstractPbCommand {
     private static final SimpleCommandExceptionType ERROR_FAILED =
             new SimpleCommandExceptionType(Component.translatable("commands.help.failed"));

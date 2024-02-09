@@ -2,6 +2,7 @@ package me.earth.pingbypass.server.handlers;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.*;
 import net.minecraft.network.protocol.game.*;
 
 import javax.annotation.ParametersAreNonnullByDefault;

@@ -35,12 +35,12 @@ public abstract class MixinConnection implements IConnection {
 
     // is this the best injection point?
     @Inject(method = "sendPacket", at = @At("HEAD"), cancellable = true)
-    private void sendPacketHook(Packet<?> packet, @Nullable PacketSendListener packetSendListener, CallbackInfo ci) {
+    private void sendPacketHook(Packet<?> packet, PacketSendListener sendListener, boolean flush, CallbackInfo ci) {
         MixinHelper.hook(getSendEvent(packet), packet.getClass(), ci);
     }
 
     @Inject(method = "sendPacket", at = @At("RETURN"))
-    private void postSendHook(Packet<?> packet, @Nullable PacketSendListener packetSendListener, CallbackInfo ci) {
+    private void postSendHook(Packet<?> packet, PacketSendListener sendListener, boolean flush, CallbackInfo ci) {
         PingBypassApi.getEventBus().post(getPostSendEvent(packet), packet.getClass());
     }
 

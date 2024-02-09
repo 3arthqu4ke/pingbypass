@@ -78,10 +78,10 @@ public class ServerConnectionListener extends SubscriberImpl {
                             .pipeline()
                             .addLast("timeout", new ReadTimeoutHandler(30))
                             .addLast("legacy_query", new LegacyQueryHandler(server.getServerStatusService()))
-                            .addLast("splitter", new Varint21FrameDecoder())
+                            /*.addLast("splitter", new Varint21FrameDecoder()) TODO
                             .addLast("decoder", new PacketDecoder(PacketFlow.SERVERBOUND))
                             .addLast("prepender", new Varint21LengthFieldPrepender())
-                            .addLast("encoder", new PacketEncoder(PacketFlow.CLIENTBOUND));
+                            .addLast("encoder", new PacketEncoder(PacketFlow.CLIENTBOUND))*/;
 
                         Session session = new Session();
                         server.getSessionManager().addSession(session);

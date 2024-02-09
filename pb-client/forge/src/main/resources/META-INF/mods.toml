@@ -34,5 +34,5 @@ credits=" - " #optional
 authors="3arthqu4ke" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-PingBypass-Client for 1.20.1
+PingBypass-Client for 1.20.4
 '''

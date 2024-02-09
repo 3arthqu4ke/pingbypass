@@ -20,6 +20,7 @@
     "network.MixinClientPacketListener",
     "network.MixinConnection",
     "network.MixinConnectionProtocol",
+    "network.MixinConnectionProtocolCodecData",
     "network.s2c.IClientBoundExplodePacket",
     "render.MixinCamera",
     "render.MixinGameRenderer",

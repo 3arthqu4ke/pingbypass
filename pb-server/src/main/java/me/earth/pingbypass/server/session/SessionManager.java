@@ -9,7 +9,6 @@ import net.minecraft.ReportedException;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 
 import java.util.List;
@@ -91,7 +90,7 @@ public class SessionManager implements Iterable<Session> {
 
         try {
             switch (session.getConnectionProtocol()) {
-                case PLAY -> session.send(new ClientboundDisconnectPacket(reason), afterwards(session, reason));
+                case PLAY -> {/*session.send(new ClientboundDisconnectPacket(reason), afterwards(session, reason));*/}
                 case STATUS -> session.send(new ClientboundLoginDisconnectPacket(reason), afterwards(session, reason));
                 default -> {}
             }

@@ -107,7 +107,7 @@ public class CommandScreen extends Screen {
     @Override
     public void tick() {
         tickCount++;
-        input.tick();
+        //input.tick();
     }
 
     @Override
@@ -143,8 +143,8 @@ public class CommandScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double x, double y, double byIn) {
-        double by = Mth.clamp(byIn, -1.0, 1.0);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        double by = Mth.clamp(scrollY, -1.0, 1.0);
         if (!commandSuggestions.mouseScrolled(by)) {
             if (!hasShiftDown()) {
                 by *= MOUSE_SCROLL_SPEED;
@@ -189,7 +189,7 @@ public class CommandScreen extends Screen {
     @Override
     public void render(@NotNull GuiGraphics graphics, int x, int y, float delta) {
         // background.render(graphics, x, y, delta); would've been nice to just display this on the TitleScreen but bugs
-        this.renderBackground(graphics);
+        this.renderBackground(graphics, x, y, delta);
         chatComponent.render(graphics, tickCount, x, y);
         RenderSystem.clear(256, Minecraft.ON_OSX);
         setFocused(input);

@@ -28,7 +28,7 @@ public class HandshakeHandler implements ServerHandshakePacketListener, IHandler
 
     @Override
     public void handleIntention(ClientIntentionPacket packet) {
-        switch (packet.getIntention()) {
+        /*switch (packet.getIntention()) {
             case LOGIN -> {
                 session.setProtocol(ConnectionProtocol.LOGIN);
                 if (packet.getProtocolVersion() != Constants.MC_PROTOCOL) {
@@ -53,7 +53,7 @@ public class HandshakeHandler implements ServerHandshakePacketListener, IHandler
                 }
             }
             default -> throw new UnsupportedOperationException("Invalid intention " + packet.getIntention());
-        }
+        }*/
     }
 
 }

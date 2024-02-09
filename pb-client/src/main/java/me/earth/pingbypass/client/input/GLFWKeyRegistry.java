@@ -12,6 +12,7 @@ public class GLFWKeyRegistry extends KeyRegistry {
     protected String getNameForKey(Key.Type type, String name, int code) {
         String result = null;
         if (type == Key.Type.KEYBOARD && code != -1 && code != Keys.KEY_WORLD_1) {
+            // TODO: invalidScancode warning on startup
             result = GLFW.glfwGetKeyName(code, -1);
         }
 

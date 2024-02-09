@@ -31,10 +31,10 @@ public class Session extends Connection implements IConnection {
         super(PacketFlow.SERVERBOUND);
     }
 
-    @Override
+    //@Override
     public void setProtocol(@NotNull ConnectionProtocol connectionProtocol) {
         this.connectionProtocol = connectionProtocol;
-        super.setProtocol(connectionProtocol);
+        //super.setProtocol(connectionProtocol);
     }
 
     @Override

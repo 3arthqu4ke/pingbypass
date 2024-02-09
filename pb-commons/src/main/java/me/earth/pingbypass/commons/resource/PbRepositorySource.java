@@ -9,18 +9,25 @@ import me.earth.pingbypass.commons.Constants;
 import me.earth.pingbypass.commons.launch.PluginDiscoveryService;
 import me.earth.pingbypass.commons.launch.PreLaunchService;
 import me.earth.pingbypass.commons.util.StreamUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.world.flag.FeatureFlagSet;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 @Slf4j
 @RequiredArgsConstructor
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 @ExtensionMethod(StreamUtil.class)
 final class PbRepositorySource implements RepositorySource {
     private final PreLaunchService preLaunchService;
@@ -37,15 +44,24 @@ final class PbRepositorySource implements RepositorySource {
                     String namespace = container.getConfig().getNameLowerCase();
                     consumer.accept(
                             Pack.create(
-                                namespace,
-                                Component.literal(container.getConfig().getName()),
-                                true,
-                                string -> new PbPackResources(namespace, container.getPath()),
-                                getInfo(namespace),
-                                PackType.CLIENT_RESOURCES,
-                                Pack.Position.BOTTOM,
-                                false, //fixedPosition?
-                                PackSource.DEFAULT)
+                                    namespace,
+                                    Component.literal(container.getConfig().getName()),
+                                    true,
+                                    new Pack.ResourcesSupplier() {
+                                        @Override
+                                        public PackResources openPrimary(String id) {
+                                            return new PbPackResources(namespace, container.getPath());
+                                        }
+
+                                        @Override
+                                        public PackResources openFull(String id, Pack.Info info) {
+                                            return new PbPackResources(namespace, container.getPath());
+                                        }
+                                    },
+                                    getInfo(namespace),
+                                    Pack.Position.BOTTOM,
+                                    false, //fixedPosition?
+                                    PackSource.DEFAULT)
                     );
                 });
     }
@@ -55,8 +71,10 @@ final class PbRepositorySource implements RepositorySource {
                 Constants.NAME_LOW.equals(namespace)
                         ? Component.literal("PingBypass resource pack")
                         : Component.literal("Plugin resource pack"),
-                Constants.PACK_FORMAT,
-                FeatureFlagSet.of());
+                PackCompatibility.COMPATIBLE,
+                /*Constants.PACK_FORMAT,*/
+                FeatureFlagSet.of(),
+                new ArrayList<>());
     }
 
     private PluginConfigContainer getPingBypassContainer() {
