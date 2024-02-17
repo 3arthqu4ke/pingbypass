@@ -6,12 +6,15 @@ import lombok.experimental.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
+import net.minecraft.network.PacketListener;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 
@@ -22,22 +25,6 @@ public class SessionManager implements Iterable<Session> {
     private final List<Session> sessions = new CopyOnWriteArrayList<>();
     @Getter
     private volatile Session primarySession;
-
-    @Synchronized
-    public boolean requestPrimarySession(Session session) {
-        if (primarySession != null && session.isAdmin() && !primarySession.isAdmin()) {
-            this.disconnect(primarySession, Component.literal("An Admin connected!"));
-        }
-
-        if (primarySession == null) {
-            primarySession = session;
-            session.setPrimarySession(true);
-            addSession(session);
-            return true;
-        }
-
-        return false;
-    }
 
     public void sendToPrimarySession(Packet<?> packet) {
         sendToPrimarySession(() -> packet);
@@ -50,20 +37,12 @@ public class SessionManager implements Iterable<Session> {
         }
     }
 
-    public void sendPacket(Packet<?> packet) {
-        sessions.forEach(session -> {
-            if (session.isCompleted()) {
-                session.send(packet);
-            }
-        });
-    }
-
     public void tick() {
         this.sessions.forEach(session -> {
             if (session.isConnecting()) {
                 return;
             }
-
+            // TODO: maybe we need to tick connections also when they are not connected? then remove them right after?
             if (session.isConnected()) {
                 try {
                     session.tick();
@@ -76,6 +55,7 @@ public class SessionManager implements Iterable<Session> {
                     disconnect(session, Component.literal("PingBypass server error!"));
                 }
             } else {
+                session.handleDisconnection();
                 remove(session);
             }
         });
@@ -89,11 +69,14 @@ public class SessionManager implements Iterable<Session> {
         log.info("Disconnecting %s : %s".formatted(session, reason.getString()));
 
         try {
-            switch (session.getConnectionProtocol()) {
-                case PLAY -> {/*session.send(new ClientboundDisconnectPacket(reason), afterwards(session, reason));*/}
-                case STATUS -> session.send(new ClientboundLoginDisconnectPacket(reason), afterwards(session, reason));
-                default -> {}
+            PacketListener packetListener = session.getPacketListener();
+            switch (Objects.requireNonNull(packetListener).protocol()) {
+                case PLAY, CONFIGURATION -> session.send(new ClientboundDisconnectPacket(reason), afterwards(session, reason));
+                case LOGIN -> session.send(new ClientboundLoginDisconnectPacket(reason), afterwards(session, reason));
+                default -> afterwards(session, reason).onSuccess();
             }
+        } catch (Exception e) {
+            log.info("Failed to disconnect session " + session + " properly", e);
         } finally {
             remove(session);
         }
@@ -106,6 +89,7 @@ public class SessionManager implements Iterable<Session> {
     @Synchronized
     private void remove(Session session) {
         session.setReadOnly();
+        session.getSubscribers().forEach(subscriber -> session.getServer().getEventBus().unsubscribe(subscriber));
         sessions.remove(session);
         if (session.equals(primarySession)) {
             primarySession = null;

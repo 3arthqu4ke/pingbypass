@@ -11,4 +11,6 @@ dependencies {
 
     compileOnly configurations.javaDocLibs
     compileOnly group: 'org.ow2.asm', name: 'asm-tree', version: '9.5'
+
+    testImplementation(testFixtures(project(':pb-api')))
 }

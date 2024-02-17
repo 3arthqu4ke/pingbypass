@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ConnectionProtocol.CodecData.class)
-public class MixinConnectionProtocolCodecData {
+public abstract class MixinConnectionProtocolCodecData {
     @Inject(method = "packetId", at = @At("HEAD"), cancellable = true)
     public void packetIdHook(Packet<?> packet, CallbackInfoReturnable<@Nullable Integer> cir) {
         if (packet instanceof CustomPacket customPacket) {

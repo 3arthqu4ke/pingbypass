@@ -9,8 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 
 @UtilityClass
 public class ImageButtonUtil {
-    private static final ResourceLocation ICON_BUTTON = new ResourceLocation("icon/icon_button.png");
-    private static final ResourceLocation ICON_BUTTON_FOCUSED = new ResourceLocation("icon/icon_button_focused.png");
+    private static final ResourceLocation ICON_BUTTON = new ResourceLocation("pingbypass:icon/icon_button");
+    private static final ResourceLocation ICON_BUTTON_FOCUSED = new ResourceLocation("pingbypass:icon/icon_button_focused");
 
     public static ImageButton getIconButton(int x, int y, Button.OnPress callback) {
         return new ImageButton(x, y, 20, 20, new WidgetSprites(ICON_BUTTON, ICON_BUTTON_FOCUSED), callback, Component.literal("PingBypassCommandsScreen"));

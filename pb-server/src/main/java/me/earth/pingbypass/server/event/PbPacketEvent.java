@@ -26,4 +26,16 @@ public class PbPacketEvent<P extends Packet<?>> extends PacketEvent<P> {
         }
     }
 
+    public static class Pb2CPostSend<P extends Packet<?>> extends PbPacketEvent<P> {
+        public Pb2CPostSend(P packet, Session session) {
+            super(packet, session);
+        }
+    }
+
+    public static class C2PbPostReceive<P extends Packet<?>> extends PbPacketEvent<P> {
+        public C2PbPostReceive(P packet, Session session) {
+            super(packet, session);
+        }
+    }
+
 }

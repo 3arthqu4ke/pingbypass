@@ -189,13 +189,13 @@ public class CommandScreen extends Screen {
     @Override
     public void render(@NotNull GuiGraphics graphics, int x, int y, float delta) {
         // background.render(graphics, x, y, delta); would've been nice to just display this on the TitleScreen but bugs
-        this.renderBackground(graphics, x, y, delta);
+        super.render(graphics, x, y, delta);
         chatComponent.render(graphics, tickCount, x, y);
         RenderSystem.clear(256, Minecraft.ON_OSX);
         setFocused(input);
-        graphics.fill(2, height - 14, width - 2, height - 2, minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
+        // TODO: this is extremely dark!
+        graphics.fill(2, this.height - 14, this.width - 2, this.height - 2, this.minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
         input.render(graphics, x, y, delta);
-        super.render(graphics, x, y, delta);
         commandSuggestions.render(graphics, x, y);
         GuiMessageTag messageTagAt = chatComponent.getMessageTagAt(x, y);
         if (messageTagAt != null && messageTagAt.text() != null) {

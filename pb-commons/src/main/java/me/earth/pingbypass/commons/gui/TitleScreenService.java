@@ -30,9 +30,7 @@ public class TitleScreenService extends SubscriberImpl {
 
     public void addButtonToTitleScreen(TitleScreen screen) {
         int x = 2; int y = 0; int w = 2;
-        log.info("addButtonToTitleScreen");
         for (Renderable button : ((IScreen) screen).getRenderables()) {
-            log.info(button + "");
             if (button instanceof SpriteIconButton widget
                     && widget.getMessage().getContents() instanceof TranslatableContents translatable
                     && ("accessibility.onboarding.accessibility.button".equals(translatable.getKey())
@@ -44,7 +42,6 @@ public class TitleScreenService extends SubscriberImpl {
             }
         }
 
-        log.info("addButtonToTitleScreen {}, {}, {}", x, y, w);
         ((IScreen) screen).invokeAddRenderableWidget(ImageButtonUtil.getIconButton(x, y - w - 4, button -> {
             if (pingBypass.getMinecraft().screen instanceof CommandScreen commandScreen) {
                 commandScreen.close();

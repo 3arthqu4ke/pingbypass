@@ -3,6 +3,7 @@ package me.earth.pingbypass.commons.event.network;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import me.earth.pingbypass.api.event.event.CancellableEvent;
 import me.earth.pingbypass.commons.ducks.network.IConnection;
 import net.minecraft.network.protocol.Packet;
@@ -25,7 +26,14 @@ public class PacketEvent<P extends Packet<?>> extends CancellableEvent {
         }
     }
 
+    @Getter
+    @Setter
     public static class Receive<P extends Packet<?>> extends PacketEvent<P> {
+        /**
+         * If this event is not to be sent to users connected to the PingBypass server.
+         */
+        private boolean cancelledForPB;
+
         public Receive(P packet, IConnection connection) {
             super(packet, connection);
         }

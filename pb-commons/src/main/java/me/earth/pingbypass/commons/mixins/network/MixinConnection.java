@@ -9,6 +9,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.BundlePacket;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -28,9 +29,16 @@ public abstract class MixinConnection implements IConnection {
 
     @Shadow public abstract void send(Packet<?> packet);
 
+    @Shadow public abstract PacketFlow getReceiving();
+
     @Override
     public void pingbypass$send(Packet<?> packet) {
         this.send(packet);
+    }
+
+    @Override
+    public PacketFlow pingbypass$getReceiving() {
+        return getReceiving();
     }
 
     // is this the best injection point?

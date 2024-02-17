@@ -1,24 +1,37 @@
 package me.earth.pingbypass.server.session;
 
+import com.mojang.authlib.GameProfile;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Synchronized;
+import me.earth.pingbypass.api.event.api.Subscriber;
 import me.earth.pingbypass.commons.ducks.network.IConnection;
 import me.earth.pingbypass.commons.event.network.PacketEvent;
+import me.earth.pingbypass.server.PingBypassServer;
 import me.earth.pingbypass.server.event.PbPacketEvent;
+import me.earth.pingbypass.server.handlers.play.S2PB2CPipeline;
 import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
+import net.minecraft.server.network.CommonListenerCookie;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 @Setter
 public class Session extends Connection implements IConnection {
-    @Setter(AccessLevel.PRIVATE)
-    private ConnectionProtocol connectionProtocol = ConnectionProtocol.HANDSHAKING;
+    private final List<Subscriber> subscribers = new CopyOnWriteArrayList<>();
+    private final PingBypassServer server;
+    private final S2PB2CPipeline pipeline;
+
+    private volatile Integer initialTeleportId = null;
+    private CommonListenerCookie cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), "Unknown"));
     @Setter(AccessLevel.PACKAGE)
     private boolean primarySession;
     private boolean completed;
@@ -27,14 +40,11 @@ public class Session extends Connection implements IConnection {
     private UUID uuid;
     private String id;
 
-    public Session() {
+    public Session(PingBypassServer server) {
         super(PacketFlow.SERVERBOUND);
-    }
-
-    //@Override
-    public void setProtocol(@NotNull ConnectionProtocol connectionProtocol) {
-        this.connectionProtocol = connectionProtocol;
-        //super.setProtocol(connectionProtocol);
+        this.pipeline = new S2PB2CPipeline(this);
+        addSubscriber(this.pipeline);
+        this.server = server;
     }
 
     @Override
@@ -43,13 +53,50 @@ public class Session extends Connection implements IConnection {
     }
 
     @Override
+    public PacketFlow pingbypass$getReceiving() {
+        return this.getSending();
+    }
+
+    @Override
     public PacketEvent<?> getSendEvent(Packet<?> packet) {
         return new PbPacketEvent.Pb2C<>(packet, this);
     }
 
     @Override
+    public PacketEvent<?> getPostSendEvent(Packet<?> packet) {
+        return new PbPacketEvent.Pb2CPostSend<>(packet, this);
+    }
+
+    @Override
+    public PacketEvent<?> getPostReceiveEvent(Packet<?> packet) {
+        return new PbPacketEvent.C2PbPostReceive<>(packet, this);
+    }
+
+    @Override
     public PacketEvent<?> getReceiveEvent(Packet<?> packet) {
         return new PbPacketEvent.C2Pb<>(packet, this);
+    }
+
+    @Synchronized("subscribers")
+    public void subscribe() {
+        for (Subscriber subscriber : subscribers) {
+            if (!server.getEventBus().isSubscribed(subscriber)) {
+                server.getEventBus().subscribe(subscriber);
+            }
+        }
+    }
+
+    @Synchronized("subscribers")
+    private void addSubscriber(Subscriber subscriber) {
+        this.subscribers.add(subscriber);
+    }
+
+    public void initialTeleport(double x, double y, double z, float yaw, float pitch) {
+        send(new ClientboundPlayerPositionPacket(x, y, z, yaw, pitch, Collections.emptySet(), Objects.requireNonNull(initialTeleportId)));
+    }
+
+    public void clearInitialTeleportId() {
+        initialTeleportId = null;
     }
 
 }

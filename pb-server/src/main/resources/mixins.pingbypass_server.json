@@ -11,6 +11,18 @@
     "MixinMain",
     "MixinMinecraft",
     "MixinTitleScreen",
-    "headlessmc.MixinCommandContextImpl"
+    "headlessmc.MixinCommandContextImpl",
+    "inventory.IAbstractContainerMenu",
+    "network.IClientboundPlayerInfoUpdatePacket",
+    "stats.IRecipeBook",
+    "world.IBiomeManager"
+  ],
+  "client": [
+    "network.IClientPacketListener",
+    "network.syncher.ISynchedEntityData",
+    "player.ILocalPlayer",
+    "world.IClientChunkCacheStorage",
+    "world.IClientLevel",
+    "world.IClientLevelData"
   ]
 }

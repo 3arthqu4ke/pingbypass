@@ -29,5 +29,8 @@
     "render.MixinScreenEffectRenderer",
     "render.MixinSkylightEngine",
     "resource.IPackRepository"
+  ],
+  "client": [
+    "network.MixinPacketEncoder"
   ]
 }

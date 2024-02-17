@@ -4,12 +4,33 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.*;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.status.ServerboundPingRequestPacket;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 public interface IServerGamePacketListener extends ServerGamePacketListener {
     void onPacket(Packet<?> packet);
+
+    @Override
+    default void handleContainerSlotStateChanged(ServerboundContainerSlotStateChangedPacket packet) {
+        this.onPacket(packet);
+    }
+
+    @Override
+    default void handleConfigurationAcknowledged(ServerboundConfigurationAcknowledgedPacket packet) {
+        this.onPacket(packet);
+    }
+
+    @Override
+    default void handleChunkBatchReceived(ServerboundChunkBatchReceivedPacket packet) {
+        this.onPacket(packet);
+    }
+
+    @Override
+    default void handlePingRequest(ServerboundPingRequestPacket packet) {
+        this.onPacket(packet);
+    }
 
     @Override
     default void handleAnimate(ServerboundSwingPacket packet) {
@@ -252,7 +273,7 @@ public interface IServerGamePacketListener extends ServerGamePacketListener {
     }
 
     @Override
-    default void onDisconnect(Component arg) {
+    default void onDisconnect(Component reason) {
 
     }
 

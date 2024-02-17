@@ -1,11 +1,11 @@
 package me.earth.pingbypass.api.command.impl;
 
-import lombok.Data;
 import me.earth.pingbypass.api.command.Command;
+import me.earth.pingbypass.api.command.CommandSource;
 
-@Data
-public abstract class AbstractCommand implements Command {
-    private final String name;
-    private final String description;
+public abstract class AbstractCommand extends AbstractGenericCommand<CommandSource> implements Command {
+    public AbstractCommand(String name, String description) {
+        super(name, description);
+    }
 
 }

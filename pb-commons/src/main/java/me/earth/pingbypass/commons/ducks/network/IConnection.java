@@ -1,10 +1,24 @@
 package me.earth.pingbypass.commons.ducks.network;
 
 import me.earth.pingbypass.commons.event.network.PacketEvent;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
 
+/**
+ * Duck interface for {@link Connection}
+ */
 public interface IConnection {
+    /**
+     * @param packet the packet to send.
+     * @see Connection#send(Packet)
+     */
     void pingbypass$send(Packet<?> packet);
+
+    /**
+     * @return {@link Connection#getReceiving()}
+     */
+    PacketFlow pingbypass$getReceiving();
 
     default PacketEvent<?> getSendEvent(Packet<?> packet) {
         return new PacketEvent.Send<>(packet, this);

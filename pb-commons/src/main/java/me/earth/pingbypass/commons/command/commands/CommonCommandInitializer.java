@@ -11,7 +11,7 @@ public interface CommonCommandInitializer {
         manager.register(new CopyCommand(pb, mc));
         manager.register(new PasteCommand(pb, mc));
         manager.register(new EchoCommand(pb, mc));
-        manager.register(new HelpCommand(pb, mc));
+        manager.register(new HelpCommand(pb));
         manager.register(new ModulesCommand(pb, mc));
         manager.register(new QuitCommand(pb, mc));
         manager.register(new ResetCommand(pb, mc));

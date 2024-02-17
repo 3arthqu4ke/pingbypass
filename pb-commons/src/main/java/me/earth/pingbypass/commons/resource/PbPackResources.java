@@ -30,7 +30,6 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 // TODO: unsupported protocol union?
-// TODO: Rn this loads from classpath only??? can people override this with custom resource packs?
 @Slf4j
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -71,9 +70,8 @@ final class PbPackResources extends AbstractPackResources {
         if (packType == PackType.CLIENT_RESOURCES && nameSpace.equals(packId())) {
             try {
                 listResources(path).forEach(resource -> {
-                    // TODO: this is a mess?
-                    String rPath = "assets/%s/%s/%s".formatted(packId(), path, resource);
-                    output.accept(new ResourceLocation(packId(), rPath), () -> getInputStream(packId(), path));
+                    String rPath = "%s/%s".formatted(path, resource);
+                    output.accept(new ResourceLocation(packId(), rPath), () -> getInputStream(packId(), rPath));
                 });
             } catch (Throwable t) { // Exceptions thrown within this method seem to get swallowed
                 log.error("Throwable while listing resources %s, %s, %s".formatted(packType, nameSpace, path), t);
@@ -94,9 +92,9 @@ final class PbPackResources extends AbstractPackResources {
 
     private InputStream getInputStream(String nameSpace, String path) throws IOException {
         String fullPath = "assets/%s/%s".formatted(nameSpace, path);
-        log.info("getInputStream {} {} {}", nameSpace, path, fullPath);
         InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fullPath);
         if (inputStream == null) {
+            log.error("Could not find resource " + fullPath);
             throw new IOException("Could not find resource " + fullPath);
         }
 
@@ -113,7 +111,6 @@ final class PbPackResources extends AbstractPackResources {
 
     private Set<String> listResources(String subPath) {
         String path = "assets/%s/%s/".formatted(packId(), subPath);
-        log.info("listResources {} {}", subPath, path);
         if (jarPath != null) {
             return readJar(jarPath.toString(), path);
         }
