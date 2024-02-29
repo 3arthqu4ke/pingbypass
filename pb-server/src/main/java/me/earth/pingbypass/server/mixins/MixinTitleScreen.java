@@ -1,6 +1,6 @@
 package me.earth.pingbypass.server.mixins;
 
-import me.earth.pingbypass.commons.Constants;
+import me.earth.pingbypass.api.Constants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;

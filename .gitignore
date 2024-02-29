@@ -29,5 +29,6 @@ pb-security/*/logs/
 pb-security/plugin/test/
 /pingbypass/
 /pb-commons/logs/
+/pb-api/logs/
 /pb-server/logs/
 /pb-client/logs/

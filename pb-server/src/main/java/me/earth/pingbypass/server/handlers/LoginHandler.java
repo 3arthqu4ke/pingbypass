@@ -8,25 +8,27 @@ import lombok.extern.slf4j.Slf4j;
 import me.earth.pingbypass.server.PingBypassServer;
 import me.earth.pingbypass.server.ServerConstants;
 import me.earth.pingbypass.server.session.Session;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.login.*;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.util.Objects;
-import java.util.UUID;
-
-import static net.minecraft.network.chat.Component.literal;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A custom {@link net.minecraft.server.network.ServerLoginPacketListenerImpl}.
@@ -34,135 +36,188 @@ import static net.minecraft.network.chat.Component.literal;
 @Slf4j
 @RequiredArgsConstructor
 public class LoginHandler implements ServerLoginPacketListener, TickablePacketListener, IHandler {
-    private static final RandomSource RANDOM = RandomSource.create();
+    private static final Component DISCONNECT_UNEXPECTED_QUERY = Component.translatable("multiplayer.disconnect.unexpected_query_response");
+    private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
     private static final int MAX_TICKS_BEFORE_LOGIN = 600;
-    private final byte[] challenge = Ints.toByteArray(RANDOM.nextInt());
+
+    private final byte[] challenge = Ints.toByteArray(RandomSource.create().nextInt());
     private final PingBypassServer server;
     @Getter
     private final Session session;
 
-    @Nullable
-    private GameProfile gameProfile;
-    private State state = State.HELLO;
+    private volatile State state = State.HELLO;
     private int tick;
+    @Nullable
+    private String requestedUsername;
+    @Nullable
+    private GameProfile authenticatedProfile;
 
-    public static boolean isValidUsername(String string) {
-        return string.chars()
-                .filter((i) -> i <= 32 || i >= 127)
-                .findAny()
-                .isEmpty();
+    @Override
+    public void tick() {
+        if (state == State.VERIFYING) {
+            verifyLoginAndFinishConnectionSetup(Objects.requireNonNull(authenticatedProfile));
+        }
+
+        if (state == State.WAITING_FOR_DUPE_DISCONNECT) {
+            finishLoginAndWaitForClient(Objects.requireNonNull(authenticatedProfile));
+        }
+
+        if (tick++ == MAX_TICKS_BEFORE_LOGIN) {
+            disconnect(Component.translatable("multiplayer.disconnect.slow_login"));
+        }
+    }
+
+    @Override
+    public void onDisconnect(@NotNull Component reason) {
+        log.info("{} lost connection: {}", getUserName(), reason.getString());
     }
 
     @Override
     public void handleHello(ServerboundHelloPacket packet) {
-        Validate.validState(this.state == State.HELLO, "Unexpected hello packet");
-        Validate.validState(isValidUsername(packet.name()), "Invalid characters in username");
-        //this.session.setUuid(packet.profileId().orElse(null));
-        this.session.setUserName(packet.name());
-        //this.gameProfile = new GameProfile(packet.profileId().orElse(null), packet.name());
-        if (server.getServerConfig().get(ServerConstants.ENCRYPT) && !getConnection().isMemoryConnection()) {
-            this.state = State.KEY;
-            getConnection().send(new ClientboundHelloPacket("", ServerConstants.KEY_PAIR.getPublic().getEncoded(), this.challenge));
+        Validate.validState(state == State.HELLO, "Unexpected hello packet");
+        Validate.validState(Player.isValidUsername(packet.name()), "Invalid characters in username");
+        // requestedUsername = packet.name();
+        requestedUsername = server.getMinecraft().getGameProfile().getName();
+        // no need for singleplayer gameprofile
+        if (server.getServerConfig().get(ServerConstants.AUTH) && !session.isMemoryConnection()) {
+            state = State.KEY;
+            session.send(new ClientboundHelloPacket("", ServerConstants.KEY_PAIR.getPublic().getEncoded(), challenge));
         } else {
-            this.state = State.READY_TO_ACCEPT;
+            startClientVerification(UUIDUtil.createOfflineProfile(requestedUsername));
         }
     }
 
+    // TODO:!
     @Override
     public void handleKey(ServerboundKeyPacket packet) {
-        Validate.validState(this.state == State.KEY, "Unexpected key packet");
+        Validate.validState(state == State.KEY, "Unexpected key packet");
+
+        final String serverId;
         try {
             PrivateKey privateKey = ServerConstants.KEY_PAIR.getPrivate();
-            if (!packet.isChallengeValid(this.challenge, privateKey)) {
+            if (!packet.isChallengeValid(challenge, privateKey)) {
                 throw new IllegalStateException("Protocol error");
             }
 
             SecretKey secretKey = packet.getSecretKey(privateKey);
-            Cipher decrypt = Crypt.getCipher(2, secretKey);
-            Cipher encrypt = Crypt.getCipher(1, secretKey);
-            this.state = State.READY_TO_ACCEPT;
-            getConnection().setEncryptionKey(decrypt, encrypt);
-        } catch (CryptException ex) {
-            throw new IllegalStateException("Protocol error", ex);
+            Cipher cipher = Crypt.getCipher(2, secretKey);
+            Cipher cipher2 = Crypt.getCipher(1, secretKey);
+            serverId = new BigInteger(Crypt.digestData("", ServerConstants.KEY_PAIR.getPublic(), secretKey)).toString(16);
+            state = State.AUTHENTICATING;
+            session.setEncryptionKey(cipher, cipher2);
+        } catch (CryptException e) {
+            throw new IllegalStateException("Protocol error", e);
         }
+        // TODO: use Executor
+        /*Thread thread = new Thread("User Authenticator #" + UNIQUE_THREAD_ID.incrementAndGet()) {
+            @Override
+            public void run() {
+                String string = Objects.requireNonNull(requestedUsername, "Player name not initialized");
+
+                try {
+                    ProfileResult profileResult = server.getSessionService().hasJoinedServer(string, string, this.getAddress());
+                    if (profileResult != null) {
+                        GameProfile gameProfile = profileResult.profile();
+                        log.info("UUID of player {} is {}", gameProfile.getName(), gameProfile.getId());
+                        startClientVerification(gameProfile);
+                    } else if (server.isSingleplayer()) {
+                        log.warn("Failed to verify username but will let them in anyway!");
+                        startClientVerification(UUIDUtil.createOfflineProfile(string));
+                    } else {
+                        disconnect(Component.translatable("multiplayer.disconnect.unverified_username"));
+                        log.error("Username '{}' tried to join with an invalid session", string);
+                    }
+                } catch (AuthenticationUnavailableException var4) {
+                    if (server.isSingleplayer()) {
+                        log.warn("Authentication servers are down but will let them in anyway!");
+                        startClientVerification(UUIDUtil.createOfflineProfile(string));
+                    } else {
+                        disconnect(Component.translatable("multiplayer.disconnect.authservers_down"));
+                        log.error("Couldn't verify username because servers are unavailable");
+                    }
+                }
+            }
+
+            @Nullable
+            private InetAddress getAddress() {
+                SocketAddress socketAddress = connection.getRemoteAddress();
+                return server.getPreventProxyConnections() && socketAddress instanceof InetSocketAddress
+                        ? ((InetSocketAddress)socketAddress).getAddress()
+                        : null;
+            }
+        };
+
+        thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        thread.start();*/
+
+        startClientVerification(UUIDUtil.createOfflineProfile(Objects.requireNonNull(requestedUsername)));
     }
 
     @Override
-    public void tick() {
-        if (this.state == State.READY_TO_ACCEPT) {
-            this.handleAcceptedLogin();
-        }
-
-        if (this.tick++ >= MAX_TICKS_BEFORE_LOGIN) {
-            this.disconnect(Component.translatable("multiplayer.disconnect.slow_login"));
-        }
-    }
-
-    @Override
-    public void handleCustomQueryPacket(@NotNull ServerboundCustomQueryAnswerPacket serverboundCustomQueryPacket) {
-        this.disconnect(Component.translatable("multiplayer.disconnect.unexpected_query_response"));
+    public void handleCustomQueryPacket(ServerboundCustomQueryAnswerPacket packet) {
+        disconnect(DISCONNECT_UNEXPECTED_QUERY);
     }
 
     @Override
     public void handleLoginAcknowledgement(ServerboundLoginAcknowledgedPacket packet) {
-
+        Validate.validState(state == State.PROTOCOL_SWITCHING, "Unexpected login acknowledgement packet");
+        CommonListenerCookie cookie = CommonListenerCookie.createInitial(Objects.requireNonNull(authenticatedProfile));
+        session.setCookie(cookie);
+        ConfigurationPacketListener configurationPacketListener = new ConfigurationPacketListener(server, session, cookie);
+        session.setListener(configurationPacketListener);
+        configurationPacketListener.startConfiguration();
+        state = State.ACCEPTED;
     }
 
-    public void disconnect(Component component) {
+    @Override
+    public void fillListenerSpecificCrashDetails(CrashReportCategory crashReportCategory) {
+        crashReportCategory.setDetail("Login phase", () -> state.toString());
+    }
+
+    private void disconnect(Component reason) {
         try {
-            log.info("Disconnecting {}: {}", this.getUserName(), component.getString());
-            getConnection().send(new ClientboundLoginDisconnectPacket(component));
-            getConnection().disconnect(component);
-        } catch (Exception exception) {
-            log.error("Error whilst disconnecting player", exception);
+            log.info("Disconnecting {}: {}", getUserName(), reason.getString());
+            server.getSessionManager().disconnect(session, reason);
+        } catch (Exception e) {
+            log.error("Error whilst disconnecting player", e);
         }
     }
 
-    public void handleAcceptedLogin() {
-        /*if (!Objects.requireNonNull(this.gameProfile).isComplete()) {
-            this.gameProfile = this.createFakeProfile(this.gameProfile);
-        }*/
+    private String getUserName() {
+        String string = session.getLoggableAddress(server.getServerConfig().get(ServerConstants.LOG_IPS));
+        return requestedUsername != null ? requestedUsername + " (" + string + ")" : string;
+    }
 
-        if (!server.getSessionManager().requestPrimarySession(session)) {
-            server.getSessionManager().disconnect(session, literal("Someone is already connected to this PingBypass!"));
-            return;
-        }
+    private void startClientVerification(GameProfile authenticatedProfile) {
+        this.authenticatedProfile = authenticatedProfile;
+        state = State.VERIFYING;
+    }
 
-        this.state = State.ACCEPTED;
+    private void verifyLoginAndFinishConnectionSetup(GameProfile profile) {
         int compression = server.getServerConfig().get(ServerConstants.COMPRESSION);
-        if (compression >= 0 && !getConnection().isMemoryConnection()) {
-            getConnection().send(new ClientboundLoginCompressionPacket(compression),
-                    PacketSendListener.thenRun(() -> getConnection().setupCompression(compression, true)));
+        if (compression >= 0 && !session.isMemoryConnection()) {
+            session.send(new ClientboundLoginCompressionPacket(compression),
+                    PacketSendListener.thenRun(() -> session.setupCompression(compression, true)));
         }
 
-        // TODO: sure?
-        //connection.send(new ClientboundGameProfilePacket(this.gameProfile));
-        if (server.getSecurityManager().isEnabled()) {
-            var handler = new ServerLoginHandlerImpl(server, session);
-            getConnection().setListener(handler);
-            handler.sendChallenge();
-        } else {
-
-        }
+        // TODO: here!!!!
+        state = State.WAITING_FOR_DUPE_DISCONNECT;
+        finishLoginAndWaitForClient(profile);
     }
 
-    public String getUserName() {
-        if (this.gameProfile != null) {
-            return "%s (%s)".formatted(gameProfile, getConnection().getRemoteAddress());
-        } else {
-            return String.valueOf(getConnection().getRemoteAddress());
-        }
-    }
-
-    protected GameProfile createFakeProfile(GameProfile gameProfile) {
-        UUID uUID = UUIDUtil.createOfflinePlayerUUID(gameProfile.getName());
-        return new GameProfile(uUID, gameProfile.getName());
+    private void finishLoginAndWaitForClient(GameProfile profile) {
+        state = State.PROTOCOL_SWITCHING;
+        session.send(new ClientboundGameProfilePacket(server.getMinecraft().getGameProfile()));
     }
 
     private enum State {
         HELLO,
         KEY,
-        READY_TO_ACCEPT,
+        AUTHENTICATING,
+        // NEGOTIATING, (not used)
+        VERIFYING,
+        WAITING_FOR_DUPE_DISCONNECT,
+        PROTOCOL_SWITCHING,
         ACCEPTED
     }
 

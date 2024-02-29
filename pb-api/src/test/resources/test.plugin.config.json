@@ -1,0 +1,11 @@
+{
+  "name": "TestPlugin",
+  "mainClass": "TestMainClass",
+  "mixinConfig": null,
+  "mixinConnector": "me.earth.pingbypass.api.launch.PluginDiscoveryServiceTestMixinConnector",
+  "description": "TestDescription",
+  "url": "TestUrl",
+  "supports": [{"side": "client"}],
+  "platforms": [{"platform": "fabric"}],
+  "authors": ["TestAuthor"]
+}

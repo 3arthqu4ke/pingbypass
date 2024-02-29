@@ -1,5 +1,4 @@
 import io.franzbecker.gradle.lombok.task.DelombokTask
-import xyz.wagyourtail.unimined.api.mappings.MappingNamespace
 
 // without this block gradle seems to download maven metadata for log4j everytime gradle is configuring something
 buildscript {
@@ -19,10 +18,28 @@ buildscript {
 
 plugins {
     id 'io.franzbecker.gradle-lombok' version '5.0.0'
-    id 'xyz.wagyourtail.unimined' version 'b536a54772' apply false
+    id 'xyz.wagyourtail.unimined' version '1.1.1' apply false
     id 'com.github.johnrengelman.shadow' version '7.0.0' apply false
     // id "com.dorongold.task-tree" version "2.1.1" to find the dependencies of runClient for the docker file
 }
+
+def forgePrjs = [project(':pb-api-forge'), project(':pb-client-forge'), project(':pb-server-forge')]
+def fabricPrjs = [project(':pb-api-fabric'), project(':pb-client-fabric'), project(':pb-server-fabric')]
+def javaDocPrjs = [project(':pb-api'), project(':pb-api-fabric'), project(':pb-client-fabric'), project(':pb-server-fabric')]
+def commonsPrjs = [project(':pb-client'), project(':pb-server')]
+
+def runClientPrjs = fabricPrjs
+def platformPrjs = forgePrjs + fabricPrjs
+def modPrjs = platformPrjs
+def mcProjects = platformPrjs + commonsPrjs + project(':pb-api')
+def mixinProjects = mcProjects
+def gsonProjects = mcProjects + project(':pb-api')
+
+def clientServerMap = new HashMap<Project, Project>()
+clientServerMap[project(':pb-client-forge')] = project(':pb-client')
+clientServerMap[project(':pb-server-forge')] = project(':pb-server')
+clientServerMap[project(':pb-client-fabric')] = project(':pb-client')
+clientServerMap[project(':pb-server-fabric')] = project(':pb-server')
 
 allprojects {
     apply plugin: 'java'
@@ -73,8 +90,13 @@ allprojects {
 
     configurations {
         jarLibsApi
+        api.extendsFrom jarLibsApi
+
         jarLibsImplementation
-        lwjglAgent.extendsFrom runtimeOnly
+        implementation.extendsFrom jarLibsImplementation
+
+        lwjglAgent
+        runtimeOnly.extendsFrom lwjglAgent
     }
 
     dependencies {
@@ -92,9 +114,6 @@ allprojects {
         if (rootProject.property('hmc.lwjgl').toBoolean()) {
             lwjglAgent "me.earth.headlessmc:headlessmc-lwjgl:1.8.1"
         }
-
-        api configurations.jarLibsApi
-        implementation configurations.jarLibsImplementation
     }
 
     test {
@@ -177,21 +196,6 @@ allprojects {
         }
     }
 
-    def forgeRunnerPrjs = [project(':pb-server-forgerunner'), project(':pb-client-forgerunner')]
-    def forgePrjs = [project(':pb-client-forge'), project(':pb-server-forge')] + forgeRunnerPrjs
-    def fabricPrjs = [project(':pb-client-fabric'), project(':pb-server-fabric')]
-    def javaDocPrjs = [project(':pb-commons'), project(':pb-client-fabric'), project(':pb-server-fabric')]
-    def commonsPrjs = [project(':pb-client'), project(':pb-server')]
-
-    def runClientPrjs = forgeRunnerPrjs + fabricPrjs
-    def platformPrjs = forgePrjs + fabricPrjs
-    def modPrjs = platformPrjs + project(':pb-security-plugin')
-    // I did not want to make the API depend on Minecraft,
-    // but at the same time I wanted to use brigadier without any generics
-    def mcProjects = platformPrjs + commonsPrjs + project(':pb-commons') + project(':pb-api')
-    def mixinProjects = mcProjects + project(':pb-security-plugin')
-    def gsonProjects = mcProjects + project(':pb-api')
-
     if (gsonProjects.contains(project)) {
         dependencies {
             // TODO: Theoretically it is correct to expose this as api since we expose interfaces using gson classes
@@ -209,15 +213,13 @@ allprojects {
     if (commonsPrjs.contains(project)) {
         dependencies {
             api project(':pb-api')
-            api project(':pb-security-api')
-            api project(':pb-security-lib')
-            api project(':pb-commons')
         }
     }
 
     if (javaDocPrjs.contains(project)) {
         configurations {
             javaDocLibs
+            compileOnly.extendsFrom javaDocLibs
         }
 
         afterEvaluate {
@@ -248,33 +250,55 @@ allprojects {
     if (mcProjects.contains(project)) {
         apply plugin: 'xyz.wagyourtail.unimined'
 
-        unimined {
-            useGlobalCache = false
+        unimined.minecraft(sourceSets.main, true) {
+            version rootProject.mc_version
+
+            mappings {
+                intermediary()
+                mojmap()
+                parchment("2024.02.25")
+            }
+
+            if (forgePrjs.contains(project)) {
+                ext {
+                    type = 'forge'
+                }
+
+                mappings {
+                    devFallbackNamespace "intermediary"
+                }
+
+                forge {
+                    loader project.forge_version
+                    if (modPrjs.contains(project) && project.ext.sub_type != 'api') {
+                        mixinConfig += ["mixins.pingbypass_${project.ext.sub_type}.json".toString(), "mixins.pingbypass.json"]
+                    } else {
+                        mixinConfig += ["mixins.pingbypass.json"]
+                    }
+                }
+            }
+
+            if (fabricPrjs.contains(project)) {
+                fabric {
+                    loader rootProject.fabric_version
+                }
+            }
         }
 
-        dependencies {
-            minecraft "net.minecraft:minecraft:${rootProject.mc_version}"
-            mappings "net.fabricmc:intermediary:${rootProject.mc_version}:v2"
-            mappings "net.minecraft:minecraft:${rootProject.mc_version}:client-mappings"
-            // parchment should resolve some parameter names
-            mappings "org.parchmentmc.data:parchment-1.20.2:2023.12.10@zip"
+        unimined.minecraft(sourceSets.main) {
+            //runs.off = true
+            //defaultRemapJar = false
         }
 
-        // TODO: this can cause problems with other processes (projects) trying to access the minecraft libraries
+        // otherwise javadocJar and sourcesJar will fail because Minecraft etc. wont be found
         afterEvaluate {
             javadoc {
-                classpath += files(configurations.minecraftLibraries.resolve())
-                classpath += files(configurations.minecraft.resolve())
+                classpath += sourceSets.main.compileClasspath
             }
 
             if (tasks.find { it.name == 'delombok' }) {
-                delombok.classpath += files(configurations.minecraftLibraries.resolve())
-                delombok.classpath += files(configurations.minecraft.resolve())
+                delombok.classpath += sourceSets.main.compileClasspath
             }
-        }
-
-        remapJar {
-            archiveClassifier.set('release')
         }
     }
 
@@ -283,9 +307,6 @@ allprojects {
 
         dependencies {
             jarLibsApi project(':pb-api')
-            jarLibsApi project(':pb-security-api')
-            jarLibsApi project(':pb-security-lib')
-            jarLibsApi project(':pb-commons')
 
             // Added because Runtime Remapping does not seem to remap methods rn if we just place the jar in the mods folder
             if (rootProject.property('hmc.specifics').toBoolean()) {
@@ -298,15 +319,16 @@ allprojects {
 
         shadowJar {
             configurations = [project.configurations.jarLibsApi, project.configurations.jarLibsImplementation]
-            classifier 'fat'
+            archiveClassifier.set('fat')
             exclude '**/module-info.class'
             exclude '**/META-INF/maven/'
             exclude '**/com/google/gson/**'
         }
 
         remapJar {
-            inputFile.set(shadowJar.archiveFile)
             dependsOn(shadowJar)
+            inputFile.set(shadowJar.archiveFile)
+            archiveClassifier.set('release')
             exclude '**/module-info.class'
             exclude '**/META-INF/maven/'
             exclude '**/com/google/gson/**'
@@ -341,23 +363,16 @@ allprojects {
             type = 'forge'
         }
 
-        minecraft {
-            forge {
-                devFallbackNamespace = MappingNamespace.INTERMEDIARY
-                mixinConfig = [
-                    "mixins.pingbypass_${project.ext.sub_type}.json".toString(),
-                    "mixins.pingbypass_commons.json"
-                ]
+        processResources {
+            inputs.property "version", project.version
+
+            filesMatching("META-INF/mods.toml") {
+                expand "version": rootProject.property('project_version')
             }
         }
-
-        dependencies {
-            forge "net.minecraftforge:forge:${rootProject.mc_version}-${rootProject.forge_version}"
-        }
-
-        remapJar {
-            targetNamespace = MappingNamespace.SEARGE
-        }
+        //remapJar {
+        //    targetNamespace = MappingNamespace.SEARGE
+        //}
     }
 
     if (fabricPrjs.contains(project)) {
@@ -365,34 +380,27 @@ allprojects {
             type = 'fabric'
         }
 
-        minecraft {
-            fabric()
+        processResources {
+            inputs.property "version", project.version
+
+            filesMatching("fabric.mod.json") {
+                expand "version": rootProject.property('project_version')
+            }
         }
 
-        dependencies {
-            fabric "net.fabricmc:fabric-loader:${rootProject.fabric_version}"
-            javaDocLibs "net.fabricmc:fabric-loader:${rootProject.fabric_version}"
-        }
-
-        remapJar {
-            targetNamespace = MappingNamespace.INTERMEDIARY
-        }
+        //remapJar {
+        //    targetNamespace = MappingNamespace.INTERMEDIARY
+        //}
     }
 
     if (modPrjs.contains(project)) {
         jar {
-            if (project != project(':pb-security-plugin')) {
-                // archiveClassifier.set('dev')
-            }
-
             exclude '**/module-info.class'
             exclude '**/META-INF/maven/'
             exclude '**/com/google/gson/**'
             manifest {
                 attributes(
-                    'MixinConfigs': (project == project(':pb-security-plugin'))
-                        ? 'mixins.pingbypass_security.json'
-                        : "mixins.pingbypass_${project.ext.sub_type}.json,mixins.pingbypass_commons.json",
+                    'MixinConfigs': project.ext.sub_type == 'api' ? 'mixins.pingbypass.json' : "mixins.pingbypass_${project.ext.sub_type}.json,mixins.pingbypass.json",
                     'MixinConnector': "me.earth.pingbypass.${project.ext.sub_type}.launch.${project.ext.cap_type}MixinConnector",
                     'Implementation-Title': "PingBypass-${project.ext.cap_type}",
                     'Implementation-Version': project.version
@@ -401,27 +409,32 @@ allprojects {
         }
     }
 
-    jar {
-        // i do not like the -dev classifier
-        archiveClassifier.set('')
+    if (clientServerMap.containsKey(project)) {
+        processResources {
+            inputs.property "version", rootProject.property('project_version')
+            filesMatching("pb.pluginconfig.json") {
+                expand "version": rootProject.property('project_version')
+            }
+        }
+
+        // TODO: build pluginJar, which does not contain api!
+        // TODO: mod.toml/fabric.json: include multiple mods, like pingbypass,
+        //  but not in the plugin jar, there just have a dependency on pingbypass
     }
 }
 
 dependencies {
     // makes the pom of the 'pingbypass' maven artifact contain all modules
     api project(':pb-api')
-    api project(':pb-security-api')
-    api project(':pb-security-lib')
     api project(':pb-client')
     api project(':pb-server')
-    api project(':pb-commons')
 }
 
 def pubSuffix = System.getenv('IS_MAVEN_PUB') != null
     ? ''
     : System.getenv('GITHUB_RUN_NUMBER') != null && System.getenv('GITHUB_SHA') != null
         ? "-${System.getenv('GITHUB_RUN_NUMBER')}-${System.getenv('GITHUB_SHA').substring(0, 7)}"
-        : '-local'
+        : ''
 
 allprojects {
     if (!project.name.endsWith('forgerunner')) {
@@ -496,36 +509,14 @@ subprojects {
     }
 }
 
-// TODO: configure Intellij run 'Minecraft Client' to run pb client + server?
-// TODO: do we really want to run the game in the deep subdirectories? Make run directory configurable?
 tasks.register('runPBClientFabric') {
     description = 'Runs the PingBypass-Client on Fabric'
     group = 'run'
     dependsOn(project(':pb-client-fabric')['runClient'])
 }
 
-tasks.register('runPBClientForge') {
-    description = 'Runs the PingBypass-Client on Forge'
-    group = 'run'
-    dependsOn(project(':pb-client-forgerunner')['runClient'])
-}
-
 tasks.register('runPBServerFabric') {
     description = 'Runs the PingBypass-Server on Fabric'
     group = 'run'
     dependsOn(project(':pb-server-fabric')['runClient'])
-}
-
-tasks.register('runPBServerForge') {
-    description = 'Runs the PingBypass-Server on Forge'
-    group = 'run'
-    dependsOn(project(':pb-server-forgerunner')['runClient'])
-}
-
-tasks.register('cleanExceptUniminedCache') {
-    description = 'Cleans everything except the unimined cache'
-    group = 'build'
-    delete layout.buildDirectory.dir('libs')
-    delete layout.buildDirectory.dir('tmp')
-    dependsOn(subprojects.clean)
 }

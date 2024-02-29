@@ -5,7 +5,7 @@ import me.earth.headlessmc.api.HeadlessMc;
 import me.earth.headlessmc.command.AbstractCommand;
 import me.earth.pingbypass.PingBypassApi;
 import me.earth.pingbypass.api.command.CommandManager;
-import me.earth.pingbypass.commons.command.DelegatingCommandSource;
+import me.earth.pingbypass.api.command.DelegatingCommandSource;
 import me.earth.pingbypass.server.PingBypassServer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ComponentUtils;

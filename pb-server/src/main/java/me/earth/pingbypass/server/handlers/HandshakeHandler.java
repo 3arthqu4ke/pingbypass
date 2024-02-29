@@ -2,23 +2,19 @@ package me.earth.pingbypass.server.handlers;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.earth.pingbypass.commons.Constants;
 import me.earth.pingbypass.server.PingBypassServer;
 import me.earth.pingbypass.server.ServerConstants;
 import me.earth.pingbypass.server.session.Session;
-import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.protocol.handshake.ClientIntent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.handshake.ServerHandshakePacketListener;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * A custom {@link net.minecraft.server.network.ServerHandshakePacketListenerImpl}
  */
 @RequiredArgsConstructor
-@ParametersAreNonnullByDefault
 public class HandshakeHandler implements ServerHandshakePacketListener, IHandler {
     private static final Component IGNORE_STATUS_REASON = Component.literal("Ignoring status request");
 
@@ -28,15 +24,15 @@ public class HandshakeHandler implements ServerHandshakePacketListener, IHandler
 
     @Override
     public void handleIntention(ClientIntentionPacket packet) {
-        /*switch (packet.getIntention()) {
+        switch (packet.intention()) {
             case LOGIN -> {
-                session.setProtocol(ConnectionProtocol.LOGIN);
-                if (packet.getProtocolVersion() != Constants.MC_PROTOCOL) {
-                    MutableComponent component;
-                    if (packet.getProtocolVersion() < 754) {
-                        component = Component.translatable("multiplayer.disconnect.outdated_client", Constants.MC);
+                session.setClientboundProtocolAfterHandshake(ClientIntent.LOGIN);
+                if (packet.protocolVersion() != SharedConstants.getCurrentVersion().getProtocolVersion()) {
+                    Component component;
+                    if (packet.protocolVersion() < 754) {
+                        component = Component.translatable("multiplayer.disconnect.outdated_client", SharedConstants.getCurrentVersion().getName());
                     } else {
-                        component = Component.translatable("multiplayer.disconnect.incompatible", Constants.MC);
+                        component = Component.translatable("multiplayer.disconnect.incompatible", SharedConstants.getCurrentVersion().getName());
                     }
 
                     server.getSessionManager().disconnect(session, component);
@@ -46,14 +42,19 @@ public class HandshakeHandler implements ServerHandshakePacketListener, IHandler
             }
             case STATUS -> {
                 if (this.server.getServerConfig().get(ServerConstants.REPLY_TO_STATUS)) {
-                    session.setProtocol(ConnectionProtocol.STATUS);
+                    session.setClientboundProtocolAfterHandshake(ClientIntent.STATUS);
                     session.setListener(new StatusHandler(server, session));
                 } else {
                     server.getSessionManager().disconnect(session, IGNORE_STATUS_REASON);
                 }
             }
-            default -> throw new UnsupportedOperationException("Invalid intention " + packet.getIntention());
-        }*/
+            default -> throw new UnsupportedOperationException("Invalid intention " + packet.intention());
+        }
+    }
+
+    @Override
+    public void onDisconnect(Component reason) {
+
     }
 
 }

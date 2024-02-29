@@ -8,7 +8,7 @@ import me.earth.pingbypass.api.traits.Nameable;
 public class Category implements Nameable {
     private final String name;
     /**
-     * The RGB color of this category. (No Alpha!)
+     * The ARGB color of this category.
      */
     private final int color;
     // private final ResourceLocation icon;

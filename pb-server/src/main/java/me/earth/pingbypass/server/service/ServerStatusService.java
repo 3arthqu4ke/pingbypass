@@ -1,35 +1,32 @@
 package me.earth.pingbypass.server.service;
 
 import lombok.RequiredArgsConstructor;
-import me.earth.pingbypass.commons.Constants;
-import me.earth.pingbypass.commons.util.PingUtil;
+import lombok.extern.slf4j.Slf4j;
+import me.earth.pingbypass.api.Constants;
+import me.earth.pingbypass.api.util.PingUtil;
 import me.earth.pingbypass.server.session.SessionManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.status.ServerStatus;
+import org.jetbrains.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Optional;
 
-import static me.earth.pingbypass.commons.Constants.MC;
+import static me.earth.pingbypass.api.Constants.MC;
 import static me.earth.pingbypass.server.ServerConstants.MAX_PLAYERS;
 import static net.minecraft.ChatFormatting.*;
 import static net.minecraft.network.chat.Component.literal;
 
+@Slf4j
 @RequiredArgsConstructor
 public class ServerStatusService {
-    public static final String FAVICON = """
-            data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAABhUlEQVR42u3WMUgCUQDG8bc0OFhk
-            UBE1KRFZg9LgIMUFBi2JSSlUQyY0VBiElFs0OAlNDQWFYUMFQVDU0BBtNoQRjVFLQdAS1NB2bR+v
-            4eCuw3wX38dvetyd93cQRcbEbo9mQD5//9wDq+f6dT2YuddoggEM+IOAu/0oCGnyh8nnun4AwmBy
-            gNEzGcAAVQLKOxE4yQ/Bc2UFrooTIL/E2+sGVM5moVxMwP15GuRzBjBAlYAfN1R5lt+HAQxgAAMY
-            ULMA3WCGf+BMXM8ABjgpgL9CDGAAAxjg/ACr6+9uADsv2uXzwFg0DNX+ghjAALt7OZwEO8/JpkJQ
-            yA4AAxigesBCzA8JzQtm7u0LtMNyOgRBrwcYwADVA+TdbMbBzPXTI35YmwuDqNUYwACbS2o+yIz2
-            gHxNsLcNCrkIdDS5gAEMcGqAvNhgJxzvTsHqkgatzW4Qqo0BDPjF3K46KOU0eLxchK+PLUiNB4AB
-            DPgPAS2NLngoJeE0PwxPF/OwvR4HBjBAkYBveo6/J887s58AAAAASUVORK5CYII=""";
+    // TODO: make resource-packable instead?
+    private static final @Nullable ServerStatus.Favicon FAVICON;
 
     private final SessionManager sessionManager;
     private final QueueService queueService;
@@ -51,7 +48,7 @@ public class ServerStatusService {
         return new ServerStatus(getMotd(),
                                 Optional.of(new ServerStatus.Players(MAX_PLAYERS, sessionManager.getPlayers(), Collections.emptyList())), // TODO: don't return empty List?
                                 Optional.of(new ServerStatus.Version(MC, Constants.MC_PROTOCOL)),
-                                Optional.of(new ServerStatus.Favicon(FAVICON.getBytes(StandardCharsets.UTF_8))),
+                                Optional.ofNullable(FAVICON),
                                 false);
     }
 
@@ -102,6 +99,22 @@ public class ServerStatusService {
                         .withStyle(GRAY))
                 .append(literal(String.valueOf(ping))
                         .withStyle(BOLD, getPingColor(ping)));
+    }
+
+    static {
+        ServerStatus.Favicon favicon;
+        try (InputStream is = ServerStatusService.class.getClassLoader().getResourceAsStream("assets/pingbypass/favicon.png")) {
+            if (is == null) {
+                throw new IOException("Failed to find pack.png");
+            }
+
+            favicon = new ServerStatus.Favicon(is.readAllBytes());
+        } catch (IOException e) {
+            log.error("Failed to read Favicon", e);
+            favicon = null;
+        }
+
+        FAVICON = favicon;
     }
 
 }

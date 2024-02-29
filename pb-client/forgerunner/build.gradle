@@ -1,7 +1,0 @@
-// this is needed because pb-client-forge runClient does not work for reasons I am not going to go into
-afterEvaluate {
-    runClient {
-        dependsOn(project(':pb-client-forge')['build'])
-        classpath += files(project(':pb-client-forge').layout.buildDirectory.file("libs/pb-client-forge-$project.version-fat.jar"))
-    }
-}

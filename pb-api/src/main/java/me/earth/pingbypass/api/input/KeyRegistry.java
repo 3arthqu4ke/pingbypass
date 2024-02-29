@@ -2,7 +2,6 @@ package me.earth.pingbypass.api.input;
 
 import lombok.SneakyThrows;
 import me.earth.pingbypass.api.registry.impl.SortedRegistry;
-import org.checkerframework.checker.units.qual.K;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;

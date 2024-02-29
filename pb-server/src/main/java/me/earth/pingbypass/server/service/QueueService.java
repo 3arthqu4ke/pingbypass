@@ -2,7 +2,7 @@ package me.earth.pingbypass.server.service;
 
 import lombok.Getter;
 import me.earth.pingbypass.api.event.SubscriberImpl;
-import me.earth.pingbypass.commons.event.network.ReceiveListener;
+import me.earth.pingbypass.api.event.network.ReceiveListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.protocol.game.ClientboundTabListPacket;

@@ -1,5 +1,0 @@
-{
-  "name": "Security",
-  "mixinConfig": "mixins.pingbypass_security.json",
-  "description": "A plugin to generate KeyPairs for PingBypass Security."
-}

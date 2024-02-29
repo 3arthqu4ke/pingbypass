@@ -1,3 +1,48 @@
+plugins {
+    id 'java-test-fixtures'
+}
+
+repositories {
+    maven {
+        name = 'NeoForgeMaven'
+        url = 'https://maven.neoforged.net/releases'
+    }
+}
+
 dependencies {
-    api project(':pb-security-api')
+    // Not sure if compileOnly is correct, but this should not show up in the pom of our publication
+    jarLibsImplementation group: 'dev.xdark', name: 'deencapsulation', version: '1.0'
+
+    javaDocLibs 'cpw.mods:modlauncher:10.0.8'
+    javaDocLibs 'cpw.mods:securejarhandler:2.1.24'
+    javaDocLibs "net.fabricmc:fabric-loader:${rootProject.fabric_version}"
+
+    compileOnly group: 'org.ow2.asm', name: 'asm-tree', version: '9.5'
+
+    testImplementation(testFixtures(project(':pb-api')))
+}
+
+sourceSets {
+    testNoRuntime {
+        compileClasspath += sourceSets.test.compileClasspath
+    }
+
+    test {
+        compileClasspath += sourceSets.testNoRuntime.runtimeClasspath
+        compileClasspath += main.compileClasspath + main.runtimeClasspath + main.output
+        runtimeClasspath += main.compileClasspath + main.runtimeClasspath + main.output
+    }
+
+    testFixtures {
+        compileClasspath += main.compileClasspath + main.runtimeClasspath + main.output
+        runtimeClasspath += main.compileClasspath + main.runtimeClasspath + main.output
+    }
+}
+
+tasks.named("test") {
+    dependsOn(tasks.named("remapJar"))
+}
+
+dependencies {
+    testImplementation(testFixtures(project))
 }

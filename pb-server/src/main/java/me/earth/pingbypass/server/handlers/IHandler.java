@@ -1,16 +1,13 @@
 package me.earth.pingbypass.server.handlers;
 
-import me.earth.pingbypass.commons.protocol.IPacketListener;
+import me.earth.pingbypass.api.protocol.IPacketListener;
 import me.earth.pingbypass.server.session.Session;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-interface IHandler extends IPacketListener {
+public interface IHandler extends IPacketListener {
     Session getSession();
 
     @Override
@@ -19,7 +16,7 @@ interface IHandler extends IPacketListener {
     }
 
     @Override
-    default void onDisconnect(Component arg) {
+    default void onDisconnect(Component component) {
 
     }
 
