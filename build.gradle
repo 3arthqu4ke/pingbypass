@@ -24,7 +24,7 @@ subprojects {
     apply plugin: 'io.franzbecker.gradle-lombok'
     apply plugin: 'com.github.johnrengelman.shadow'
 
-    group 'me.earth'
+    group 'me.earth.pingbypass'
     version rootProject.version
 
     base {
