@@ -5,6 +5,8 @@ import me.earth.pingbypass.api.traits.Streamable;
 
 import java.util.Optional;
 
+// TODO: Namespace for better conflict solving?!
+// TODO: Could we build this on top of Minecraft registries instead?
 public interface Registry<T extends Nameable> extends Streamable<T> {
     boolean register(T object);
 

@@ -1,8 +1,8 @@
 package me.earth.pingbypass.api.launch;
 
 import me.earth.pingbypass.api.files.FileManager;
-import me.earth.pingbypass.api.side.Side;
 import me.earth.pingbypass.api.platform.PlatformProvider;
+import me.earth.pingbypass.api.side.Side;
 
 import java.util.stream.Stream;
 
@@ -11,7 +11,7 @@ public interface PreLaunchService {
 
     boolean isInitialized(Side side);
 
-    TransformerRegistry getTransformerRegistry();
+    Transformer.Registry getTransformerRegistry();
 
     FileManager getRootFileManager();
 

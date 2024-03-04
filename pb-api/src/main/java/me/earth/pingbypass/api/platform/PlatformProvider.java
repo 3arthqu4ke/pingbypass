@@ -1,20 +1,28 @@
 package me.earth.pingbypass.api.platform;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.earth.pingbypass.api.platform.Platform;
 import me.earth.pingbypass.api.util.ReflectionUtil;
+import org.jetbrains.annotations.VisibleForTesting;
 
 @Slf4j
 @Getter
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED, onConstructor_={@VisibleForTesting})
 public class PlatformProvider {
-    private final Platform current;
-    private final PlatformService platformService;
+    private static final PlatformProvider INSTANCE;
 
-    public static PlatformProvider detect() {
-        Platform platform; PlatformService platformService;
+    private final PlatformService platformService;
+    private final Platform current;
+
+    public static PlatformProvider getInstance() {
+        return INSTANCE;
+    }
+
+    static {
+        Platform platform;
+        PlatformService platformService;
         if (ReflectionUtil.doesClassExist("cpw.mods.modlauncher.Launcher")) {
             platform = Platform.FORGE;
             platformService = new ForgePlatformService();
@@ -26,7 +34,7 @@ public class PlatformProvider {
         }
 
         log.info("Detected platform: " + platform.getName());
-        return new PlatformProvider(platform, platformService);
+        INSTANCE = new PlatformProvider(platformService, platform);
     }
 
 }

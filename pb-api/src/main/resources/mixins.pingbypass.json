@@ -14,7 +14,9 @@
     "network.MixinConnection",
     "network.MixinConnectionProtocol",
     "network.MixinConnectionProtocolCodecData",
+    "network.c2s.MixinServerboundCustomPayloadPacket",
     "network.s2c.IClientBoundExplodePacket",
+    "network.s2c.MixinClientboundCustomPayloadPacket",
     "render.MixinSkylightEngine",
     "resource.IPackRepository"
   ],

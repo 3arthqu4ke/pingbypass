@@ -2,6 +2,7 @@ package me.earth.pingbypass.api.event;
 
 import lombok.RequiredArgsConstructor;
 import me.earth.pingbypass.api.event.listeners.generic.Listener;
+import me.earth.pingbypass.api.util.exceptions.NullabilityUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -20,12 +21,7 @@ public abstract class SafeListener<E> extends Listener<E> {
 
     @Override
     public void onEvent(E event) {
-        LocalPlayer player = mc.player;
-        ClientLevel level = mc.level;
-        MultiPlayerGameMode gameMode = mc.gameMode;
-        if (player != null && level != null && gameMode != null) {
-            onEvent(event, player, level, gameMode);
-        }
+        NullabilityUtil.safe(mc, ((player, level, gameMode) -> onEvent(event, player, level, gameMode)));
     }
 
 }

@@ -1,0 +1,8 @@
+{
+  "name": "PingBypass-Server",
+  "mixinConfig": "mixins.pingbypass_server.json",
+  "description": "The PingBypass Server.",
+  "pingbypass": "${version}",
+  "platforms": [{"platform": "forge"}],
+  "provides": [{"side": "server"}]
+}

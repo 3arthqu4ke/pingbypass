@@ -2,12 +2,10 @@ package me.earth.pingbypass.api.platform;
 
 import cpw.mods.cl.ModuleClassLoader;
 import cpw.mods.jarhandling.SecureJar;
-import cpw.mods.modlauncher.ClassTransformer;
-import cpw.mods.modlauncher.TransformingClassLoader;
 import dev.xdark.deencapsulation.Deencapsulation;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
+import me.earth.pingbypass.api.launch.Transformer;
 
 import java.lang.module.Configuration;
 import java.lang.module.ModuleReference;
@@ -17,7 +15,6 @@ import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.UnaryOperator;
 
 @Slf4j
 final class ForgePlatformService implements PlatformService {
@@ -96,9 +93,8 @@ final class ForgePlatformService implements PlatformService {
     }
 
     @Override
-    public void setMixinTransformer(UnaryOperator<IMixinTransformer> factory) {
-        // TODO:!!!!
-        log.warn("ASM transformers are not yet supported on Forge!");
+    public Transformer.Registry injectTransformerRegistry() {
+        return transformer -> log.warn("ASM Transformers are not yet supported on Forge. For now, use a MixinConfigPlugin");
     }
 
 }

@@ -2,6 +2,7 @@ package me.earth.pingbypass.api.platform;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import me.earth.pingbypass.api.launch.Transformer;
 import net.fabricmc.loader.impl.launch.FabricLauncherBase;
 import net.fabricmc.loader.impl.launch.knot.Knot;
 import org.jetbrains.annotations.Nullable;
@@ -15,16 +16,30 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 
 @Slf4j
 final class FabricPlatformService implements PlatformService {
+    private final TransformingRegistry registry = new TransformingRegistry();
+    private final AtomicBoolean injected = new AtomicBoolean();
+
     @Override
     public void addToClassPath(Path path) {
         FabricLauncherBase.getLauncher().addToClassPath(path);
     }
 
     @Override
+    public Transformer.Registry injectTransformerRegistry() {
+        synchronized (injected) {
+            if (!injected.getAndSet(true)) {
+                setMixinTransformer(transformer -> new TransformingRegistry.MixinTransformerRegistry(transformer, registry));
+            }
+        }
+
+        return registry;
+    }
+
     public void setMixinTransformer(UnaryOperator<IMixinTransformer> factory) {
         try {
             IMixinTransformer transformer = getTransformer();

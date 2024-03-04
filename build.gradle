@@ -1,102 +1,132 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import io.franzbecker.gradle.lombok.task.DelombokTask
 
-// without this block gradle seems to download maven metadata for log4j everytime gradle is configuring something
-buildscript {
-    dependencies {
-        constraints {
-            //noinspection ForeignDelegate
-            classpath('org.apache.logging.log4j:log4j-core') {
-                version {
-                    strictly('[2.17, 3[')
-                    prefer('2.17.0')
-                }
-                because('CVE-2021-44228, CVE-2021-45046, CVE-2021-45105')
-            }
-        }
-    }
-}
-
 plugins {
-    id 'io.franzbecker.gradle-lombok' version '5.0.0'
+    id 'io.franzbecker.gradle-lombok' version '5.0.0' apply false
     id 'xyz.wagyourtail.unimined' version '1.1.1' apply false
-    id 'com.github.johnrengelman.shadow' version '7.0.0' apply false
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     // id "com.dorongold.task-tree" version "2.1.1" to find the dependencies of runClient for the docker file
 }
 
-def forgePrjs = [project(':pb-api-forge'), project(':pb-client-forge'), project(':pb-server-forge')]
-def fabricPrjs = [project(':pb-api-fabric'), project(':pb-client-fabric'), project(':pb-server-fabric')]
-def javaDocPrjs = [project(':pb-api'), project(':pb-api-fabric'), project(':pb-client-fabric'), project(':pb-server-fabric')]
-def commonsPrjs = [project(':pb-client'), project(':pb-server')]
+apply plugin: 'java'
+apply plugin: 'maven-publish'
 
-def runClientPrjs = fabricPrjs
-def platformPrjs = forgePrjs + fabricPrjs
-def modPrjs = platformPrjs
-def mcProjects = platformPrjs + commonsPrjs + project(':pb-api')
-def mixinProjects = mcProjects
-def gsonProjects = mcProjects + project(':pb-api')
+ext {
+    platforms = ['fabric', 'lexforge', 'neoforge']
+    platforms_cap = ['Fabric', 'Lexforge', 'Neoforge']
+}
 
-def clientServerMap = new HashMap<Project, Project>()
-clientServerMap[project(':pb-client-forge')] = project(':pb-client')
-clientServerMap[project(':pb-server-forge')] = project(':pb-server')
-clientServerMap[project(':pb-client-fabric')] = project(':pb-client')
-clientServerMap[project(':pb-server-fabric')] = project(':pb-server')
-
-allprojects {
+subprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'idea'
-    apply plugin: 'maven-publish'
+    apply plugin: 'xyz.wagyourtail.unimined'
     apply plugin: 'io.franzbecker.gradle-lombok'
+    apply plugin: 'com.github.johnrengelman.shadow'
 
-    ext {
-        nameNoPb = project.name.split("-").length > 1 ? project.name.split("-")[1] : project.name
-        cap_type = nameNoPb.substring(0, 1).toUpperCase() + nameNoPb.substring(1)
-        sub_type = cap_type.toLowerCase()
+    group 'me.earth'
+    version rootProject.version
+
+    base {
+        archivesName = project.name
+    }
+
+    sourceSets {
+        fabric
+        neoforge
+        lexforge
     }
 
     repositories {
+        mavenCentral()
         maven {
-            name = 'SpongeMaven'
-            url = 'https://repo.spongepowered.org/repository/maven-public/'
+            url = "https://files.minecraftforge.net/maven"
         }
-
         maven {
-            name = 'FabricMaven'
-            url = 'https://maven.fabricmc.net/'
+            name = "sponge"
+            url = "https://repo.spongepowered.org/maven"
         }
-
         maven {
-            name = 'JitpackMaven'
-            url = 'https://jitpack.io'
+            url = "https://maven.wagyourtail.xyz/releases"
         }
 
         maven {
             name = '3arthMaven'
             url = 'https://3arthqu4ke.github.io/maven'
         }
-
-        maven {
-            name = "ParchmentmcMaven"
-            url = "https://maven.parchmentmc.net/"
-        }
-
-        mavenCentral()
     }
 
-    archivesBaseName = project.name.toLowerCase()
-    version = "${project.property('mc_version')}-${project.property('project_version')}"
-    group = 'me.earth.pingbypass'
-    targetCompatibility = sourceCompatibility = JavaVersion.VERSION_17
+    unimined.minecraft {
+        version rootProject.minecraft_version
+
+        mappings {
+            mojmap()
+            devFallbackNamespace 'mojmap'
+        }
+
+        defaultRemapJar = false
+    }
+
+    unimined.minecraft(sourceSets.fabric) {
+        combineWith(sourceSets.main)
+
+        fabric {
+            loader rootProject.fabric_version
+        }
+
+        defaultRemapJar = true
+    }
+
+    unimined.minecraft(sourceSets.neoforge) {
+        combineWith(sourceSets.main)
+
+        neoForged {
+            loader rootProject.neoforge_version
+            mixinConfig 'mixins.pingbypass.json'
+            if (project.name == 'pb-client') {
+                mixinConfig += 'mixins.pingbypass_client.json'
+            } else if (project.name == 'pb-server') {
+                mixinConfig += 'mixins.pingbypass_server.json'
+            }
+        }
+
+        minecraftRemapper.config {
+            // neoforge adds 1 conflict, where 2 interfaces have a method with the same name on yarn/mojmap,
+            // but the method has different names in the intermediary mappings.
+            // this is a conflict because they have a class that extends both interfaces.
+            // this shouldn't be a problem as long as named mappings don't make the name of those 2 methods different.
+            ignoreConflicts(true)
+        }
+
+        defaultRemapJar = true
+    }
+
+    unimined.minecraft(sourceSets.lexforge) {
+        combineWith(sourceSets.main)
+
+        minecraftForge {
+            loader rootProject.lexforge_version
+            mixinConfig 'mixins.pingbypass.json'
+            if (project.name == 'pb-client') {
+                mixinConfig += 'mixins.pingbypass_client.json'
+            } else if (project.name == 'pb-server') {
+                mixinConfig += 'mixins.pingbypass_server.json'
+            }
+        }
+
+        minecraftRemapper.config {
+            ignoreConflicts(true)
+        }
+
+        defaultRemapJar = true
+    }
 
     configurations {
-        jarLibsApi
-        api.extendsFrom jarLibsApi
+        lwjglAgent.extendsFrom runtimeOnly
 
-        jarLibsImplementation
-        implementation.extendsFrom jarLibsImplementation
-
-        lwjglAgent
-        runtimeOnly.extendsFrom lwjglAgent
+        // see pb-api build.gradle, these need to be on the classpath when building our JavaDoc
+        javaDocLibs
+        compileOnly.extendsFrom javaDocLibs
     }
 
     dependencies {
@@ -110,6 +140,10 @@ allprojects {
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+
+        api 'com.google.code.gson:gson:2.10.1'
+        compileOnly 'org.spongepowered:mixin:0.8.5-SNAPSHOT'
+        compileOnly 'me.earth.headlessmc:headlessmc:1.8.1'
 
         if (rootProject.property('hmc.lwjgl').toBoolean()) {
             lwjglAgent "me.earth.headlessmc:headlessmc-lwjgl:1.8.1"
@@ -143,18 +177,19 @@ allprojects {
     if (sourceSets.main.java.srcDirs.stream().anyMatch { it.exists()}) {
         tasks.register('delombok', DelombokTask) {
             dependsOn compileJava
-            ext.outputDir = file(buildDir.toPath().resolve('delombok'))
+            classpath += sourceSets.main.compileClasspath // without this we would fail as soon as we hit an MC class
+            ext.outputDir = file(project.layout.buildDirectory.get().asFile.toPath().resolve('delombok'))
             outputs.dir(ext.outputDir)
             sourceSets.main.java.srcDirs.each {
                 if (it.exists()) {
                     inputs.dir(it)
                     // not using -f pretty for now, we might want to use some of these
-                    args(it, '-f', 'suppressWarnings:skip',
-                             '-f', 'generated:skip',
-                             '-f', 'danceAroundIdeChecks:skip',
-                             '-f', 'generateDelombokComment:skip',
-                             '-f', 'javaLangAsFQN:skip',
-                             '-d', ext.outputDir)
+                    args(it,'-f', 'suppressWarnings:skip',
+                            '-f', 'generated:skip',
+                            '-f', 'danceAroundIdeChecks:skip',
+                            '-f', 'generateDelombokComment:skip',
+                            '-f', 'javaLangAsFQN:skip',
+                            '-d', ext.outputDir)
                 }
             }
         }
@@ -196,248 +231,209 @@ allprojects {
         }
     }
 
-    if (gsonProjects.contains(project)) {
-        dependencies {
-            // TODO: Theoretically it is correct to expose this as api since we expose interfaces using gson classes
-            //  But this means that in plugins, to get forge to work in gradle we need to exclude it on every dependency
-            api 'com.google.code.gson:gson:2.10.1'
+    // replace all ${version}s with the project version in these files:
+    processFabricResources {
+        inputs.property "version", project.version
+
+        filesMatching("fabric.mod.json") {
+            expand "version": project.version
         }
     }
 
-    if (mixinProjects.contains(project)) {
-        dependencies {
-            compileOnly 'org.spongepowered:mixin:0.8.5'
+    processNeoforgeResources {
+        inputs.property "version", project.version
+
+        filesMatching("META-INF/mods.toml") {
+            expand "version": project.version
         }
     }
 
-    if (commonsPrjs.contains(project)) {
-        dependencies {
-            api project(':pb-api')
+    processLexforgeResources {
+        inputs.property "version", project.version
+
+        filesMatching("META-INF/mods.toml") {
+            expand "version": project.version
         }
     }
 
-    if (javaDocPrjs.contains(project)) {
+    // Forge Runs seem to have problems running from the build/classes folder
+    // So instead we just run from the built jar
+    afterEvaluate {
+        fabricRunClient {
+            configureTaskForLwjglAgent(it)
+        }
+
+        // TODO: check if we can run plugins with this? Is deencapsulation on the classpath?
+        lexforgeRunClient {
+            dependsOn(lexforgeJar)
+            configureTaskForLwjglAgent(it)
+            classpath = classpath.filter {
+                !it.toString().contains("${project.name}/build/classes/java/".replace('/', File.separator))
+                        && !it.toString().contains("${project.name}/build/resources/".replace('/', File.separator))
+            }
+
+            classpath += files("${projectDir}/build/libs/${project.name}-${project.version}-lexforge-dev.jar".replace('/', File.separator))
+        }
+
+        neoforgeRunClient {
+            dependsOn(neoforgeJar)
+            configureTaskForLwjglAgent(it)
+            classpath = classpath.filter {
+                !it.toString().contains("${project.name}/build/classes/java/".replace('/', File.separator))
+                        && !it.toString().contains("${project.name}/build/resources/".replace('/', File.separator))
+            }
+
+            classpath += files("${projectDir}/build/libs/${project.name}-${project.version}-neoforge-dev.jar".replace('/', File.separator))
+        }
+    }
+}
+
+private void configureTaskForLwjglAgent(JavaExec exec) {
+    exec.standardInput = System.in
+    if (rootProject.property('hmc.lwjgl').toBoolean()) {
+        exec.jvmArgs += ["-javaagent:${configurations.lwjglAgent.files.iterator().next()}"]
+        exec.systemProperties['joml.nounsafe'] = 'true'
+        exec.systemProperties['fabric.systemLibraries'] = "${configurations.lwjglAgent.files.iterator().next()}"
+    }
+}
+
+subprojects {
+    if (project == project(':pb-api')) {
         configurations {
-            javaDocLibs
-            compileOnly.extendsFrom javaDocLibs
+            jarLibsImpl
+            implementation.extendsFrom jarLibsImpl
         }
 
-        afterEvaluate {
-            javadoc {
-                classpath += files(configurations.javaDocLibs.resolve())
+        // Add a shadowJar for each platform, currently the only dependency we need to include is deencapsulation, see pb-api build.gradle
+        for (String platform_capitalized : rootProject.ext.platforms_cap) {
+            def platform = platform_capitalized.toLowerCase()
+            def remapJarTask = tasks.named("remap${platform_capitalized}Jar", AbstractArchiveTask).get()
+            def shadowTask = tasks.register("${platform}ShadowJar", ShadowJar) {
+                dependsOn(remapJarTask)
+                group = 'build'
+                archiveClassifier = "${platform}-release"
+                from remapJarTask.outputs
+                configurations = [ project.configurations.jarLibsImpl ]
             }
 
-            if (tasks.find { it.name == 'delombok' }) {
-                delombok {
-                    classpath += files(configurations.javaDocLibs.resolve())
+            rootProject.tasks.named('build') { finalizedBy(shadowTask) }
+            publishing {
+                publications {
+                    "$project.name"(MavenPublication) {
+                        artifact shadowTask // publish shadowJar
+                    }
                 }
             }
         }
-    }
+    } else if ([project(':pb-server'), project(':pb-client')].contains(project)) {
+        ext {
+            extension = project.name.contains('server') ? 'server' : 'client'
+            extension_cap = project.name.contains('server') ? 'Server' : 'Client'
+        }
 
-    if ([project(':pb-server-fabric'), project(':pb-server-forge')].contains(project)) {
         dependencies {
-            jarLibsApi project(':pb-server')
+            implementation project(':pb-api')
         }
-    }
 
-    if ([project(':pb-client-fabric'), project(':pb-client-forge')].contains(project)) {
-        dependencies {
-            jarLibsApi project(':pb-client')
-        }
-    }
+        for (String platform_capitalized : rootProject.ext.platforms_cap) {
+            def platform = platform_capitalized.toLowerCase()
 
-    if (mcProjects.contains(project)) {
-        apply plugin: 'xyz.wagyourtail.unimined'
+            def remapJarTask = tasks.named("remap${platform_capitalized}Jar", AbstractArchiveTask).get()
+            remapJarTask.archiveClassifier = "${platform}-plugin"
+            def shadowTask = project(':pb-api').tasks.named("${platform}ShadowJar", AbstractArchiveTask).get()
+            // Add a task which produces a Jar-In-Jar mod, which contains the pb-api
+            // TODO: forge and fabric have tooling, I dont know if unimined supports forges JarJar, but I think there is support for fabric Jar-In-Jar?
+            def standaloneTask = tasks.register("${platform}StandaloneJar", Jar) { jarTask ->
+                inputs.property "version", project.version
+                inputs.property "platform", platform
+                dependsOn(remapJarTask, shadowTask)
+                // for now, it seems that changes to the metadata.json etc. do not get registered
+                outputs.upToDateWhen { false }
 
-        unimined.minecraft(sourceSets.main, true) {
-            version rootProject.mc_version
+                duplicatesStrategy = DuplicatesStrategy.INCLUDE
+                group = 'build'
+                archiveBaseName = jar.archiveBaseName
+                archiveClassifier = "${platform}-standalone"
 
-            mappings {
-                intermediary()
-                mojmap()
-                parchment("2024.02.25")
-            }
-
-            if (forgePrjs.contains(project)) {
-                ext {
-                    type = 'forge'
+                from(shadowTask.outputs.files.singleFile) {
+                    rename {
+                        platform == 'fabric' ? "META-INF/jars/${it}" : "META-INF/jarjar/${it}"
+                    }
                 }
 
-                mappings {
-                    devFallbackNamespace "intermediary"
-                }
+                from({ zipTree(remapJarTask.outputs.files.singleFile) })
+                if (platform == 'fabric') {
+                    from(project.file('src/fabric/resources/fabric.mod.json')) {
+                        eachFile {
+                            filter { line ->
+                                line.replace('"jars": []', "\"jars\": [ { \"file\": \"META-INF/jars/${shadowTask.outputs.files.singleFile.name}\" } ]")
+                                        .replace("\${version}", project.version)
+                            }
+                        }
+                    }
+                } else {
+                    from(project(':pb-api').file('metadata.json')) {
+                        eachFile {
+                            expand "version": project.version, "platform": platform
+                        }
 
-                forge {
-                    loader project.forge_version
-                    if (modPrjs.contains(project) && project.ext.sub_type != 'api') {
-                        mixinConfig += ["mixins.pingbypass_${project.ext.sub_type}.json".toString(), "mixins.pingbypass.json"]
-                    } else {
-                        mixinConfig += ["mixins.pingbypass.json"]
+                        rename {
+                            "META-INF/jarjar/${it}"
+                        }
                     }
                 }
             }
 
-            if (fabricPrjs.contains(project)) {
-                fabric {
-                    loader rootProject.fabric_version
+            rootProject.tasks.named('build') { finalizedBy(standaloneTask) }
+
+            publishing {
+                publications {
+                    "$project.name"(MavenPublication) {
+                        artifact standaloneTask
+                    }
                 }
             }
         }
 
-        unimined.minecraft(sourceSets.main) {
-            //runs.off = true
-            //defaultRemapJar = false
-        }
-
-        // otherwise javadocJar and sourcesJar will fail because Minecraft etc. wont be found
         afterEvaluate {
-            javadoc {
-                classpath += sourceSets.main.compileClasspath
+            def pb_api = project(':pb-api')
+
+            fabricRunClient {
+                dependsOn(pb_api.fabricJar)
+                classpath += files("${pb_api.projectDir}/build/libs/${pb_api.name}-${pb_api.version}-fabric-dev.jar".replace('/', File.separator))
             }
 
-            if (tasks.find { it.name == 'delombok' }) {
-                delombok.classpath += sourceSets.main.compileClasspath
+            lexforgeRunClient {
+                dependsOn(pb_api.lexforgeJar)
+                classpath += files("${pb_api.projectDir}/build/libs/${pb_api.name}-${pb_api.version}-lexforge-dev.jar".replace('/', File.separator))
             }
-        }
-    }
 
-    if (platformPrjs.contains(project)) {
-        apply plugin: 'com.github.johnrengelman.shadow'
-
-        dependencies {
-            jarLibsApi project(':pb-api')
-
-            // Added because Runtime Remapping does not seem to remap methods rn if we just place the jar in the mods folder
-            if (rootProject.property('hmc.specifics').toBoolean()) {
-                // TODO: make 1.20.4 release for specifics!!!
-                // TODO: instead of 1.20.4-1.2.2 use set mc version
-                // TODO: Hmc-Specifics: Bad Maven pub leads to lots of warnings about duplicate classes!
-                modImplementation "me.earth.headlessmc:hmc-specifics-fabric:1.20.1-1.2.2"
+            neoforgeRunClient {
+                dependsOn(pb_api.neoforgeJar)
+                classpath += files("${pb_api.projectDir}/build/libs/${pb_api.name}-${pb_api.version}-neoforge-dev.jar".replace('/', File.separator))
             }
-        }
 
-        shadowJar {
-            configurations = [project.configurations.jarLibsApi, project.configurations.jarLibsImplementation]
-            archiveClassifier.set('fat')
-            exclude '**/module-info.class'
-            exclude '**/META-INF/maven/'
-            exclude '**/com/google/gson/**'
-        }
-
-        remapJar {
-            dependsOn(shadowJar)
-            inputFile.set(shadowJar.archiveFile)
-            archiveClassifier.set('release')
-            exclude '**/module-info.class'
-            exclude '**/META-INF/maven/'
-            exclude '**/com/google/gson/**'
-        }
-    }
-
-    if (runClientPrjs.contains(project)) {
-        afterEvaluate {
-            runClient {
-                standardInput = System.in
-                // Without this fix unimined 0.3 adds " around the path, at least on unix, like this:
-                // "/home/.../pingbypass/build/unimined/remapClasspath.txt"
-                systemProperties['fabric.remapClasspathFile'] = rootProject.buildDir.toPath().resolve("unimined").resolve("remapClasspath.txt").toAbsolutePath()
-                //jvmArgs += ['-Dmixin.debug.export=true']
-                if (rootProject.property('hmc.lwjgl').toBoolean()) {
-                    jvmArgs += ["-javaagent:${configurations.lwjglAgent.files.iterator().next()}"]
-                    systemProperties['joml.nounsafe'] = 'true'
-                    systemProperties['fabric.systemLibraries'] = "${configurations.lwjglAgent.files.iterator().next()}"
+            tasks.withType(org.gradle.jvm.tasks.Jar).configureEach {
+                manifest {
+                    attributes(
+                        'MixinConfigs': "mixins.pingbypass_${extension}.json",
+                        'MixinConnector': "me.earth.pingbypass.${extension}.launch.${extension_cap}MixinConnector",
+                        'Implementation-Title': "PingBypass-${extension_cap}",
+                        'Implementation-Version': project.version
+                    )
                 }
             }
         }
-
-        tasks.register('runClientWithoutDependencies') {
-            doLast {
-                project['runClient'].exec()
-            }
-        }
-    }
-
-    if (forgePrjs.contains(project)) {
-        ext {
-            type = 'forge'
-        }
-
-        processResources {
-            inputs.property "version", project.version
-
-            filesMatching("META-INF/mods.toml") {
-                expand "version": rootProject.property('project_version')
-            }
-        }
-        //remapJar {
-        //    targetNamespace = MappingNamespace.SEARGE
-        //}
-    }
-
-    if (fabricPrjs.contains(project)) {
-        ext {
-            type = 'fabric'
-        }
-
-        processResources {
-            inputs.property "version", project.version
-
-            filesMatching("fabric.mod.json") {
-                expand "version": rootProject.property('project_version')
-            }
-        }
-
-        //remapJar {
-        //    targetNamespace = MappingNamespace.INTERMEDIARY
-        //}
-    }
-
-    if (modPrjs.contains(project)) {
-        jar {
-            exclude '**/module-info.class'
-            exclude '**/META-INF/maven/'
-            exclude '**/com/google/gson/**'
-            manifest {
-                attributes(
-                    'MixinConfigs': project.ext.sub_type == 'api' ? 'mixins.pingbypass.json' : "mixins.pingbypass_${project.ext.sub_type}.json,mixins.pingbypass.json",
-                    'MixinConnector': "me.earth.pingbypass.${project.ext.sub_type}.launch.${project.ext.cap_type}MixinConnector",
-                    'Implementation-Title': "PingBypass-${project.ext.cap_type}",
-                    'Implementation-Version': project.version
-                )
-            }
-        }
-    }
-
-    if (clientServerMap.containsKey(project)) {
-        processResources {
-            inputs.property "version", rootProject.property('project_version')
-            filesMatching("pb.pluginconfig.json") {
-                expand "version": rootProject.property('project_version')
-            }
-        }
-
-        // TODO: build pluginJar, which does not contain api!
-        // TODO: mod.toml/fabric.json: include multiple mods, like pingbypass,
-        //  but not in the plugin jar, there just have a dependency on pingbypass
     }
 }
 
-dependencies {
-    // makes the pom of the 'pingbypass' maven artifact contain all modules
-    api project(':pb-api')
-    api project(':pb-client')
-    api project(':pb-server')
-}
-
-def pubSuffix = System.getenv('IS_MAVEN_PUB') != null
-    ? ''
-    : System.getenv('GITHUB_RUN_NUMBER') != null && System.getenv('GITHUB_SHA') != null
-        ? "-${System.getenv('GITHUB_RUN_NUMBER')}-${System.getenv('GITHUB_SHA').substring(0, 7)}"
-        : ''
-
-allprojects {
-    if (!project.name.endsWith('forgerunner')) {
+afterEvaluate {
+    subprojects {
+        def pubSuffix = System.getenv('IS_MAVEN_PUB') != null
+                ? ''
+                : System.getenv('GITHUB_RUN_NUMBER') != null && System.getenv('GITHUB_SHA') != null
+                ? "-${System.getenv('GITHUB_RUN_NUMBER')}-${System.getenv('GITHUB_SHA').substring(0, 7)}"
+                : '-local'
         publishing {
             publications {
                 "$project.name"(MavenPublication) {
@@ -446,6 +442,11 @@ allprojects {
                     ((MavenPublication) it).version "${project.version}${pubSuffix}"
                     //noinspection GroovyAssignabilityCheck
                     from components.java
+                    for (String platform_capitalized : rootProject.ext.platforms_cap) {
+                        String platform = platform_capitalized.toLowerCase()
+                        artifact tasks.named("${platform}Jar").get()
+                        artifact tasks.named("remap${platform_capitalized}Jar").get()
+                    }
                 }
             }
 
@@ -480,43 +481,5 @@ allprojects {
                 }
             }
         }
-
-        publish {
-            dependsOn(javadocJar)
-            dependsOn(sourcesJar)
-            dependsOn(build)
-        }
     }
-}
-
-publish {
-    dependsOn(subprojects.build)
-    dependsOn(subprojects.publish)
-}
-
-subprojects {
-    afterEvaluate {
-        tasks.withType(GenerateMavenPom).configureEach {
-            it.pom.withXml {
-                asNode().dependencies.dependency.each { dependency ->
-                    // Since mixin is runtime scope and needs an additional repository it might be better to exclude it
-                    if (dependency.artifactId.last().value().last() in ['fabric-loader', 'unspecified', 'mixin']) {
-                        assert dependency.parent().remove(dependency)
-                    }
-                }
-            }
-        }
-    }
-}
-
-tasks.register('runPBClientFabric') {
-    description = 'Runs the PingBypass-Client on Fabric'
-    group = 'run'
-    dependsOn(project(':pb-client-fabric')['runClient'])
-}
-
-tasks.register('runPBServerFabric') {
-    description = 'Runs the PingBypass-Server on Fabric'
-    group = 'run'
-    dependsOn(project(':pb-server-fabric')['runClient'])
 }

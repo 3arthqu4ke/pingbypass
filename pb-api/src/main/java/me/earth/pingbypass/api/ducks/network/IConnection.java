@@ -36,4 +36,8 @@ public interface IConnection {
         return new PacketEvent.PostReceive<>(packet, this);
     }
 
+    default Connection getAsConnection() {
+        return (Connection) this;
+    }
+
 }

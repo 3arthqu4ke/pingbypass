@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 
+// TODO: add plugins at runtime!
 // TODO: method to generally make it easier to register plugins afterwards, like in Phobot MixinInitializationService!
 @Slf4j
 @RequiredArgsConstructor

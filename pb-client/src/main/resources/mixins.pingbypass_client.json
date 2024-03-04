@@ -8,6 +8,8 @@
     "maxShiftBy": 10
   },
   "mixins": [
+  ],
+  "client": [
     "MixinKeyboardHandler",
     "MixinMain",
     "MixinMinecraft",

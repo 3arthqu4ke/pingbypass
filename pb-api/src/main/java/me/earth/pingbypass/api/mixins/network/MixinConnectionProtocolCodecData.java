@@ -14,10 +14,15 @@ public abstract class MixinConnectionProtocolCodecData {
     @Inject(method = "packetId", at = @At("HEAD"), cancellable = true)
     public void packetIdHook(Packet<?> packet, CallbackInfoReturnable<@Nullable Integer> cir) {
         if (packet instanceof CustomPacket customPacket) {
-            cir.setReturnValue(customPacket.getId());
+            cir.setReturnValue(customPacket.getId(ConnectionProtocol.CodecData.class.cast(this)));
         }
     }
 
-    // TODO: isValidPacketType!
+    @Inject(method = "isValidPacketType", at = @At("HEAD"), cancellable = true)
+    public void isValidPacketTypeHook(Packet<?> packet, CallbackInfoReturnable<Boolean> cir) {
+        if (packet instanceof CustomPacket customPacket) {
+            cir.setReturnValue(customPacket.isValidPacket(ConnectionProtocol.CodecData.class.cast(this)));
+        }
+    }
 
 }

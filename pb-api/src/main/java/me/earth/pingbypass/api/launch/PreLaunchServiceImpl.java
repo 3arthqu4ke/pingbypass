@@ -2,11 +2,11 @@ package me.earth.pingbypass.api.launch;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.earth.pingbypass.api.Constants;
 import me.earth.pingbypass.api.files.FileManager;
 import me.earth.pingbypass.api.files.FileManagerImpl;
-import me.earth.pingbypass.api.side.Side;
-import me.earth.pingbypass.api.Constants;
 import me.earth.pingbypass.api.platform.PlatformProvider;
+import me.earth.pingbypass.api.side.Side;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,18 +20,17 @@ import java.util.stream.Stream;
 public enum PreLaunchServiceImpl implements PreLaunchService {
     INSTANCE;
 
-    private final PlatformProvider platformProvider = PlatformProvider.detect();
+    private final PlatformProvider platformProvider = PlatformProvider.getInstance();
     @Getter
     private final FileManager rootFileManager = new FileManagerImpl(Paths.get(Constants.NAME_LOW));
     @Getter
-    private final TransformerRegistry transformerRegistry = new TransformerRegistry();
+    private final Transformer.Registry transformerRegistry = getPlatformProvider().getPlatformService().injectTransformerRegistry();
     private final Map<Side, PluginDiscoveryService> pluginDiscoveryServices = new HashMap<>();
     private final Map<Side, FileManager> fileManagers = new HashMap<>();
     private final Set<Side> loaded = new HashSet<>();
 
     PreLaunchServiceImpl() {
         rootFileManager.mkdirs();
-        transformerRegistry.inject(getPlatformProvider().getPlatformService());
     }
 
     @Override

@@ -10,8 +10,7 @@ repositories {
 }
 
 dependencies {
-    // Not sure if compileOnly is correct, but this should not show up in the pom of our publication
-    jarLibsImplementation group: 'dev.xdark', name: 'deencapsulation', version: '1.0'
+    jarLibsImpl group: 'dev.xdark', name: 'deencapsulation', version: '1.0'
 
     javaDocLibs 'cpw.mods:modlauncher:10.0.8'
     javaDocLibs 'cpw.mods:securejarhandler:2.1.24'
@@ -39,10 +38,19 @@ sourceSets {
     }
 }
 
-tasks.named("test") {
-    dependsOn(tasks.named("remapJar"))
-}
-
 dependencies {
     testImplementation(testFixtures(project))
+}
+
+afterEvaluate {
+    tasks.withType(org.gradle.jvm.tasks.Jar).configureEach {
+        manifest {
+            attributes(
+                'MixinConfigs': "mixins.pingbypass.json",
+                'MixinConnector': "me.earth.pingbypass.api.launch.ApiMixinConnector",
+                'Implementation-Title': "PingBypass",
+                'Implementation-Version': project.version
+            )
+        }
+    }
 }

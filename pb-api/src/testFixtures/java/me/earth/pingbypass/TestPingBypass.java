@@ -2,6 +2,7 @@ package me.earth.pingbypass;
 
 import me.earth.pingbypass.api.command.impl.CommandManagerImpl;
 import me.earth.pingbypass.api.config.impl.ConfigManagerImpl;
+import me.earth.pingbypass.api.event.EventBusImpl;
 import me.earth.pingbypass.api.files.FileManagerImpl;
 import me.earth.pingbypass.api.input.DummyKeyboardAndMouse;
 import me.earth.pingbypass.api.module.impl.Categories;
@@ -19,12 +20,11 @@ public class TestPingBypass extends AbstractPingBypass {
     }
 
     public TestPingBypass(Path path) {
-        super(PingBypassApi.getEventBus(), DummyKeyboardAndMouse.INSTANCE, new CommandManagerImpl(),
+        super(new EventBusImpl(), DummyKeyboardAndMouse.INSTANCE, new CommandManagerImpl(),
                 new ModuleManagerImpl(new Categories()), new ConfigManagerImpl(),
                 new FileManagerImpl(path), new FileManagerImpl(path), new DummySecurityManager(),
                 new PluginManagerImpl(), new PlayerRegistryImpl(), new PlayerRegistryImpl(), null, new DummyChat(),
                 Side.CLIENT);
-        registerInstance();
     }
 
 }
