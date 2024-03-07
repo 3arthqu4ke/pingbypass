@@ -6,7 +6,6 @@ import me.earth.pingbypass.PingBypassApi;
 import me.earth.pingbypass.api.command.impl.CommandManagerImpl;
 import me.earth.pingbypass.api.config.impl.ConfigManagerImpl;
 import me.earth.pingbypass.api.config.properties.PropertyConfigImpl;
-import me.earth.pingbypass.api.event.EventBusImpl;
 import me.earth.pingbypass.api.event.impl.PingBypassInitializedEvent;
 import me.earth.pingbypass.api.module.impl.Categories;
 import me.earth.pingbypass.api.module.impl.ModuleManagerImpl;
@@ -16,12 +15,12 @@ import me.earth.pingbypass.api.side.Side;
 import me.earth.pingbypass.client.PingBypassClient;
 import me.earth.pingbypass.client.input.GLFWKeyboardAndMouse;
 import me.earth.pingbypass.client.input.KeybindManager;
-import me.earth.pingbypass.commons.Constants;
-import me.earth.pingbypass.commons.command.ChatImpl;
-import me.earth.pingbypass.commons.launch.InitializationService;
-import me.earth.pingbypass.commons.launch.Initializer;
-import me.earth.pingbypass.commons.launch.PreLaunchService;
-import me.earth.pingbypass.security.SecurityManagerFactory;
+import me.earth.pingbypass.api.Constants;
+import me.earth.pingbypass.api.command.ChatImpl;
+import me.earth.pingbypass.api.launch.InitializationService;
+import me.earth.pingbypass.api.launch.Initializer;
+import me.earth.pingbypass.api.launch.PreLaunchService;
+import me.earth.pingbypass.api.security.SecurityManagerFactory;
 import net.minecraft.client.Minecraft;
 
 @Slf4j

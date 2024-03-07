@@ -6,9 +6,6 @@ import net.minecraft.network.protocol.common.*;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.protocol.status.ServerboundPingRequestPacket;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
 public interface IServerGamePacketListener extends ServerGamePacketListener {
     void onPacket(Packet<?> packet);
 

@@ -8,9 +8,6 @@
     "maxShiftBy": 10
   },
   "mixins": [
-    "MixinMain",
-    "MixinMinecraft",
-    "MixinTitleScreen",
     "headlessmc.MixinCommandContextImpl",
     "inventory.IAbstractContainerMenu",
     "network.IClientboundPlayerInfoUpdatePacket",
@@ -18,6 +15,9 @@
     "world.IBiomeManager"
   ],
   "client": [
+    "MixinMain",
+    "MixinMinecraft",
+    "MixinTitleScreen",
     "network.IClientPacketListener",
     "network.syncher.ISynchedEntityData",
     "player.ILocalPlayer",

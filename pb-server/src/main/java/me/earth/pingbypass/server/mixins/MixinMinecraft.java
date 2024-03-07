@@ -1,7 +1,7 @@
 package me.earth.pingbypass.server.mixins;
 
 import me.earth.pingbypass.api.side.Side;
-import me.earth.pingbypass.commons.launch.PreLaunchServiceImpl;
+import me.earth.pingbypass.api.launch.PreLaunchServiceImpl;
 import me.earth.pingbypass.server.launch.ServerInitializer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.main.GameConfig;
@@ -15,7 +15,7 @@ public abstract class MixinMinecraft {
     @Inject(
         method = "<init>",
         at = @At(
-            value = "me.earth.pingbypass.commons.injectors.LenientBeforeInvoke",
+            value = "me.earth.pingbypass.api.injectors.LenientBeforeInvoke",
             target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"))
     public void initPingBypass(GameConfig gameConfig, CallbackInfo ci) {
         PreLaunchServiceImpl.INSTANCE.assertInitialized(Side.SERVER);

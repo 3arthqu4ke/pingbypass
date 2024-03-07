@@ -1,7 +1,7 @@
 package me.earth.pingbypass.server.commands.api;
 
 import lombok.Getter;
-import me.earth.pingbypass.commons.command.DelegatingCommandSource;
+import me.earth.pingbypass.api.command.DelegatingCommandSource;
 import me.earth.pingbypass.server.PingBypassServer;
 import me.earth.pingbypass.server.session.Session;
 

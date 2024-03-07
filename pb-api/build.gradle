@@ -2,16 +2,55 @@ plugins {
     id 'java-test-fixtures'
 }
 
-sourceSets {
-    testNoRuntime {
-        compileClasspath += sourceSets.test.compileClasspath
-    }
-    test {
-        compileClasspath += sourceSets.testNoRuntime.runtimeClasspath
+repositories {
+    maven {
+        name = 'NeoForgeMaven'
+        url = 'https://maven.neoforged.net/releases'
     }
 }
 
 dependencies {
-    api project(':pb-security-api')
+    jarLibsImpl group: 'dev.xdark', name: 'deencapsulation', version: '1.0'
+
+    javaDocLibs 'cpw.mods:modlauncher:10.0.8'
+    javaDocLibs 'cpw.mods:securejarhandler:2.1.24'
+    javaDocLibs "net.fabricmc:fabric-loader:${rootProject.fabric_version}"
+
+    compileOnly group: 'org.ow2.asm', name: 'asm-tree', version: '9.5'
+
+    testImplementation(testFixtures(project(':pb-api')))
+}
+
+sourceSets {
+    testNoRuntime {
+        compileClasspath += sourceSets.test.compileClasspath
+    }
+
+    test {
+        compileClasspath += sourceSets.testNoRuntime.runtimeClasspath
+        compileClasspath += main.compileClasspath + main.runtimeClasspath + main.output
+        runtimeClasspath += main.compileClasspath + main.runtimeClasspath + main.output
+    }
+
+    testFixtures {
+        compileClasspath += main.compileClasspath + main.runtimeClasspath + main.output
+        runtimeClasspath += main.compileClasspath + main.runtimeClasspath + main.output
+    }
+}
+
+dependencies {
     testImplementation(testFixtures(project))
+}
+
+afterEvaluate {
+    tasks.withType(org.gradle.jvm.tasks.Jar).configureEach {
+        manifest {
+            attributes(
+                'MixinConfigs': "mixins.pingbypass.json",
+                'MixinConnector': "me.earth.pingbypass.api.launch.ApiMixinConnector",
+                'Implementation-Title': "PingBypass",
+                'Implementation-Version': project.version
+            )
+        }
+    }
 }

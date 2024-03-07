@@ -23,6 +23,7 @@ import me.earth.pingbypass.server.service.ServerStatusService;
 import me.earth.pingbypass.server.session.AdminService;
 import me.earth.pingbypass.server.session.SessionManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SectionBufferBuilderPool;
 import net.minecraft.server.WorldStem;
 
 @Getter

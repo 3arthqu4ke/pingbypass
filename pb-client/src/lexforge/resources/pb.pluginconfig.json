@@ -1,0 +1,9 @@
+{
+  "name": "PingBypass-Client",
+  "mixinConfig": "mixins.pingbypass_client.json",
+  "description": "The PingBypass Client.",
+  "pingbypass": "${version}",
+  "platforms": [{"platform": "forge"}],
+  "provides": [{"side": "client"}],
+  "supports": []
+}

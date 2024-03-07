@@ -108,7 +108,7 @@ public class JoinWorldService {
             );
         }
 
-        playerInfoUpdatePacketSender.send(session, player.connection, level);
+        playerInfoUpdatePacketSender.send(session, new GameProfileTranslation(session), player.connection, player, gameMode, level);
 
         this.sendLevelInfo(session, level);
 

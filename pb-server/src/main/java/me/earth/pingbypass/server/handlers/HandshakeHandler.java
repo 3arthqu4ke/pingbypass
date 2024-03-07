@@ -11,13 +11,10 @@ import net.minecraft.network.protocol.handshake.ClientIntent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.handshake.ServerHandshakePacketListener;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 /**
  * A custom {@link net.minecraft.server.network.ServerHandshakePacketListenerImpl}
  */
 @RequiredArgsConstructor
-@ParametersAreNonnullByDefault
 public class HandshakeHandler implements ServerHandshakePacketListener, IHandler {
     private static final Component IGNORE_STATUS_REASON = Component.literal("Ignoring status request");
 

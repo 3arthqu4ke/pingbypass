@@ -40,6 +40,17 @@ public final class PluginConfig implements Nameable, HasDescription {
     @SerializedName("authors")
     private String[] authors;
 
+    @SerializedName("provides")
+    private Side[] provides;
+
+    @SerializedName("minecraft")
+    private String minecraft;
+
+    @SerializedName("pingbypass")
+    private String pingbypass;
+
+    // TODO: @SerializedName("dependencies") other plugins this could depend on?
+
     /**
      * Initializes default values.
      */
@@ -47,6 +58,7 @@ public final class PluginConfig implements Nameable, HasDescription {
         this.supports = new Side[]{Side.CLIENT, Side.SERVER};
         this.platforms = new Platform[]{Platform.FABRIC, Platform.FORGE};
         this.authors = new String[]{"3arthqu4ke"};
+        this.provides = new Side[]{};
     }
 
 }

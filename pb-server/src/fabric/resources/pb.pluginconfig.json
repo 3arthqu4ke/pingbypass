@@ -1,0 +1,9 @@
+{
+  "name": "PingBypass-Server",
+  "mixinConfig": "mixins.pingbypass_server.json",
+  "description": "The PingBypass Server.",
+  "pingbypass": "${version}",
+  "platforms": [{"platform": "fabric"}],
+  "provides": [{"side": "client"}],
+  "supports": []
+}

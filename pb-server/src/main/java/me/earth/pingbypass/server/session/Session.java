@@ -6,8 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
 import me.earth.pingbypass.api.event.api.Subscriber;
-import me.earth.pingbypass.commons.ducks.network.IConnection;
-import me.earth.pingbypass.commons.event.network.PacketEvent;
+import me.earth.pingbypass.api.ducks.network.IConnection;
+import me.earth.pingbypass.api.event.network.PacketEvent;
 import me.earth.pingbypass.server.PingBypassServer;
 import me.earth.pingbypass.server.event.PbPacketEvent;
 import me.earth.pingbypass.server.handlers.play.S2PB2CPipeline;
@@ -79,15 +79,17 @@ public class Session extends Connection implements IConnection {
 
     @Synchronized("subscribers")
     public void subscribe() {
-        for (Subscriber subscriber : subscribers) {
-            if (!server.getEventBus().isSubscribed(subscriber)) {
-                server.getEventBus().subscribe(subscriber);
+        if (isConnected()) {
+            for (Subscriber subscriber : subscribers) {
+                if (!server.getEventBus().isSubscribed(subscriber)) {
+                    server.getEventBus().subscribe(subscriber);
+                }
             }
         }
     }
 
     @Synchronized("subscribers")
-    private void addSubscriber(Subscriber subscriber) {
+    public void addSubscriber(Subscriber subscriber) {
         this.subscribers.add(subscriber);
     }
 

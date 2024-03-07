@@ -2,8 +2,8 @@ package me.earth.pingbypass.server.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.earth.pingbypass.commons.Constants;
-import me.earth.pingbypass.commons.util.PingUtil;
+import me.earth.pingbypass.api.Constants;
+import me.earth.pingbypass.api.util.PingUtil;
 import me.earth.pingbypass.server.session.SessionManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Optional;
 
-import static me.earth.pingbypass.commons.Constants.MC;
+import static me.earth.pingbypass.api.Constants.MC;
 import static me.earth.pingbypass.server.ServerConstants.MAX_PLAYERS;
 import static net.minecraft.ChatFormatting.*;
 import static net.minecraft.network.chat.Component.literal;
@@ -68,7 +68,7 @@ public class ServerStatusService {
                     .withStyle(ChatFormatting.RED);
         }
 
-        int ping = PingUtil.getPing();
+        int ping = PingUtil.getPing(mc);
         int pos = queueService.getPosition();
         if (queueService.isOn2b2t() && pos != -1) {
             return literal("2b2t.org")

@@ -1,7 +1,7 @@
 package me.earth.pingbypass.server;
 
 import me.earth.pingbypass.api.config.properties.Property;
-import me.earth.pingbypass.commons.Constants;
+import me.earth.pingbypass.api.Constants;
 import net.minecraft.util.Crypt;
 
 import java.security.KeyPair;

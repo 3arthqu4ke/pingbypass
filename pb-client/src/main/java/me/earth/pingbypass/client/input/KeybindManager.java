@@ -8,7 +8,7 @@ import me.earth.pingbypass.api.input.Key;
 import me.earth.pingbypass.api.input.KeyboardAndMouse;
 import me.earth.pingbypass.api.module.Module;
 import me.earth.pingbypass.api.setting.Setting;
-import me.earth.pingbypass.client.event.KeyEvent;
+import me.earth.pingbypass.api.event.impl.KeyEvent;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 

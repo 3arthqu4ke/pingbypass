@@ -13,6 +13,7 @@ import me.earth.pingbypass.api.traits.Nameable;
 public class Side implements Nameable {
     public static final Side SERVER = new Side("server");
     public static final Side CLIENT = new Side("client");
+    public static final Side ANY = new Side("any");
 
     @SerializedName(value = "side", alternate = {"name"})
     private String name;

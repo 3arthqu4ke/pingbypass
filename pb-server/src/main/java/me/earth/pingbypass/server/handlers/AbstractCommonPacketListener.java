@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import me.earth.pingbypass.api.util.exceptions.NullabilityUtil;
 import me.earth.pingbypass.server.PingBypassServer;
 import me.earth.pingbypass.server.session.Session;
 import net.minecraft.CrashReport;
@@ -129,6 +130,10 @@ public abstract class AbstractCommonPacketListener implements IHandler, Tickable
 
     protected CommonListenerCookie createCookie(ClientInformation clientInformation) {
         return new CommonListenerCookie(playerProfile(), latency, clientInformation);
+    }
+
+    protected void scheduleSafely(NullabilityUtil.PlayerLevelAndGameModeConsumer action) {
+        mc.submit(() -> NullabilityUtil.safe(mc, action));
     }
 
 }

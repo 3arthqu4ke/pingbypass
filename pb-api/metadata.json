@@ -1,0 +1,16 @@
+{
+  "jars": [
+    {
+      "identifier": {
+        "group": "me.earth",
+        "artifact": "pingbypass"
+      },
+      "version": {
+        "range": "[${version}]",
+        "artifactVersion": "${version}"
+      },
+      "path": "META-INF/jarjar/pb-api-${version}-${platform}.jar",
+      "isObfuscated": false
+    }
+  ]
+}

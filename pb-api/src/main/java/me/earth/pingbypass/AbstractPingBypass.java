@@ -2,18 +2,30 @@ package me.earth.pingbypass;
 
 import lombok.Getter;
 import me.earth.pingbypass.api.command.Chat;
+import me.earth.pingbypass.api.command.ChatImpl;
 import me.earth.pingbypass.api.command.CommandManager;
+import me.earth.pingbypass.api.command.impl.CommandManagerImpl;
 import me.earth.pingbypass.api.config.ConfigManager;
+import me.earth.pingbypass.api.config.impl.ConfigManagerImpl;
 import me.earth.pingbypass.api.event.api.EventBus;
 import me.earth.pingbypass.api.files.FileManager;
 import me.earth.pingbypass.api.input.KeyboardAndMouse;
+import me.earth.pingbypass.api.launch.PreLaunchService;
+import me.earth.pingbypass.api.launch.PreLaunchServiceImpl;
 import me.earth.pingbypass.api.module.ModuleManager;
+import me.earth.pingbypass.api.module.impl.Categories;
+import me.earth.pingbypass.api.module.impl.ModuleManagerImpl;
 import me.earth.pingbypass.api.players.PlayerRegistry;
+import me.earth.pingbypass.api.players.impl.PlayerRegistryImpl;
 import me.earth.pingbypass.api.plugin.PluginManager;
+import me.earth.pingbypass.api.plugin.impl.PluginManagerImpl;
 import me.earth.pingbypass.api.security.SecurityManager;
 import me.earth.pingbypass.api.side.Side;
 import net.minecraft.client.Minecraft;
 
+/**
+ * Abstract base class for {@link PingBypass}.
+ */
 @Getter
 public abstract class AbstractPingBypass implements PingBypass {
     private final EventBus eventBus;
@@ -52,6 +64,24 @@ public abstract class AbstractPingBypass implements PingBypass {
         this.side = side;
     }
 
+    /**
+     * Constructs an instance with EventBus, CommandManager, ModuleManager etc. initialized with the default implementations.
+     *
+     * @param keyBoardAndMouse the keyboard and mouse to use.
+     * @param preLaunchService the PreLaunchService to use (probably {@link PreLaunchServiceImpl#INSTANCE})
+     * @param securityManager the SecurityManager to use.
+     * @param minecraft the Minecraft client instance to use.
+     * @param side the Side this PingBypass instance will operate on.
+     */
+    protected AbstractPingBypass(KeyboardAndMouse keyBoardAndMouse, PreLaunchService preLaunchService, SecurityManager securityManager, Minecraft minecraft, Side side) {
+        this(PingBypassApi.getEventBus(), keyBoardAndMouse, new CommandManagerImpl(), new ModuleManagerImpl(new Categories()), new ConfigManagerImpl(),
+                preLaunchService.getFileManager(side), preLaunchService.getRootFileManager(), securityManager, new PluginManagerImpl(), new PlayerRegistryImpl(),
+                new PlayerRegistryImpl(), minecraft, new ChatImpl(minecraft), side);
+    }
+
+    /**
+     * Registers this instance in the {@link PingBypassApi}.
+     */
     public void registerInstance() {
         PingBypassApi.addInstance(this);
     }

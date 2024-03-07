@@ -2,8 +2,8 @@ package me.earth.pingbypass.server.service;
 
 import lombok.Getter;
 import me.earth.pingbypass.api.event.SubscriberImpl;
-import me.earth.pingbypass.commons.event.network.PacketEvent;
-import me.earth.pingbypass.commons.event.network.ReceiveListener;
+import me.earth.pingbypass.api.event.network.PacketEvent;
+import me.earth.pingbypass.api.event.network.ReceiveListener;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 
 @Getter

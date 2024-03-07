@@ -4,7 +4,7 @@ import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import me.earth.pingbypass.api.event.SubscriberImpl;
 import me.earth.pingbypass.api.event.listeners.AbstractEventListener;
-import me.earth.pingbypass.commons.event.network.PacketEvent;
+import me.earth.pingbypass.api.event.network.PacketEvent;
 import me.earth.pingbypass.server.session.Session;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
@@ -37,7 +37,7 @@ public class S2PB2CPipeline extends SubscriberImpl {
                     if (locked.get()) {
                         packets.add(event.getPacket());
                     } else {
-                        session.send(event.getPacket());
+                        send(session, event.getPacket());
                     }
                 }
             }
@@ -55,11 +55,20 @@ public class S2PB2CPipeline extends SubscriberImpl {
     @Synchronized("locked")
     public void unlockAndFlush() {
         for (Packet<?> packet : packets) {
-            session.send(packet);
+            send(session, packet);
         }
 
         packets.clear();
         locked.set(false);
+    }
+
+    private <P extends Packet<?>> void send(Session session, P packet) {
+        PipelineEvent<P> event = new PipelineEvent<>(session, packet);
+        session.getServer().getEventBus().post(event, packet.getClass());
+        Packet<?> packetToSend = event.getPacket();
+        if (event.getPacket() != null) {
+            session.send(packetToSend);
+        }
     }
 
     private void doNotProxy(Class<? extends Packet<?>> type) {

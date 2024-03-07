@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -20,7 +19,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public interface EmptySuggestionProvider extends SharedSuggestionProvider {
     EmptySuggestionProvider INSTANCE = new EmptySuggestionProvider() {};
 

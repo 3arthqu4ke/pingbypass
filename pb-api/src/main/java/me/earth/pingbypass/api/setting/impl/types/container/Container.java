@@ -14,7 +14,7 @@ import me.earth.pingbypass.api.traits.Nameable;
 import me.earth.pingbypass.api.traits.NameableImpl;
 import me.earth.pingbypass.api.traits.Streamable;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;

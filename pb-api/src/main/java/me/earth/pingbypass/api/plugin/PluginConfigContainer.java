@@ -4,8 +4,8 @@ import lombok.Data;
 import lombok.experimental.Delegate;
 import me.earth.pingbypass.api.traits.HasDescription;
 import me.earth.pingbypass.api.traits.Nameable;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.nio.file.Path;
 
 @Data

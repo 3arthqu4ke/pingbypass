@@ -1,12 +1,14 @@
 package me.earth.pingbypass.client.launch;
 
+import lombok.extern.slf4j.Slf4j;
+import me.earth.pingbypass.api.launch.ApiMixinConnector;
+import me.earth.pingbypass.api.launch.PreLaunchServiceImpl;
 import me.earth.pingbypass.api.side.Side;
-import me.earth.pingbypass.commons.launch.AbstractCommonMixinConnector;
-import me.earth.pingbypass.commons.launch.PreLaunchServiceImpl;
 import org.spongepowered.asm.mixin.Mixins;
 
+@Slf4j
 @SuppressWarnings("unused")
-public class ClientMixinConnector extends AbstractCommonMixinConnector {
+public class ClientMixinConnector extends ApiMixinConnector {
     @Override
     protected void onConnect() {
         Mixins.addConfiguration("mixins.pingbypass_client.json");

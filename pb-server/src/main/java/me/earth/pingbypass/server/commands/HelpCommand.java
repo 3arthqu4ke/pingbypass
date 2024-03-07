@@ -1,7 +1,7 @@
 package me.earth.pingbypass.server.commands;
 
 import me.earth.pingbypass.api.command.GenericCommandManager;
-import me.earth.pingbypass.commons.command.commands.AbstractHelpCommand;
+import me.earth.pingbypass.api.command.commands.AbstractHelpCommand;
 import me.earth.pingbypass.server.commands.api.ServerCommand;
 import me.earth.pingbypass.server.commands.api.ServerCommandSource;
 import net.minecraft.network.chat.Component;

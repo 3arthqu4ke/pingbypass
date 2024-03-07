@@ -11,7 +11,7 @@ import me.earth.pingbypass.api.traits.Nameable;
 @AllArgsConstructor
 @Setter(AccessLevel.PRIVATE)
 public class Platform implements Nameable {
-    // TODO: support the new LaunchWrapper? Quilt?
+    // TODO: support the new LaunchWrapper? Quilt? NeoForge?
     public static final Platform FABRIC = new Platform("fabric");
     public static final Platform FORGE = new Platform("forge");
 
