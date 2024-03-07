@@ -430,17 +430,12 @@ subprojects {
 
 afterEvaluate {
     subprojects {
-        def pubSuffix = System.getenv('IS_MAVEN_PUB') != null
-                ? ''
-                : System.getenv('GITHUB_RUN_NUMBER') != null && System.getenv('GITHUB_SHA') != null
-                ? "-${System.getenv('GITHUB_RUN_NUMBER')}-${System.getenv('GITHUB_SHA').substring(0, 7)}"
-                : ''
         publishing {
             publications {
                 "$project.name"(MavenPublication) {
                     ((MavenPublication) it).groupId "${project.group}"
                     ((MavenPublication) it).artifactId "${project.archivesBaseName.toLowerCase()}"
-                    ((MavenPublication) it).version "${project.version}${pubSuffix}"
+                    ((MavenPublication) it).version "${project.version}"
                     //noinspection GroovyAssignabilityCheck
                     from components.java
                     for (String platform_capitalized : rootProject.ext.platforms_cap) {
