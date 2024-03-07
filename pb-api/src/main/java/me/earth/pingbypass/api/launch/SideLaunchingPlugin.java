@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Launches {@link Side#SERVER} and/or {@link Side#CLIENT} if their jar is in the "pingbypass/plugins" folder.
+ * Launches {@link Side#SERVER} and/or {@link Side#CLIENT}, or any other Side, if their jar is in the "pingbypass/plugins" folder.
  */
 @Slf4j
 public class SideLaunchingPlugin implements SimpleMixinConfigPlugin {

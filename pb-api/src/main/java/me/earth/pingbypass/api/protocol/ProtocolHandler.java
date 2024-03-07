@@ -8,7 +8,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 
-public interface Handler<T extends Packet<?>> {
+public interface ProtocolHandler<T extends Packet<?>> {
     default void handle(T packet, PingBypass pingBypass, Connection connection) {
         NullabilityUtil.safe(pingBypass.getMinecraft(), ((player, level, gameMode) -> handle(packet, pingBypass, connection, player, level, gameMode)));
     }

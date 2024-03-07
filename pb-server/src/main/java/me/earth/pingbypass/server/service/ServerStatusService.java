@@ -68,7 +68,7 @@ public class ServerStatusService {
                     .withStyle(ChatFormatting.RED);
         }
 
-        int ping = PingUtil.getPing();
+        int ping = PingUtil.getPing(mc);
         int pos = queueService.getPosition();
         if (queueService.isOn2b2t() && pos != -1) {
             return literal("2b2t.org")

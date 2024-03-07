@@ -3,19 +3,23 @@ package me.earth.pingbypass.server.commands;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import lombok.extern.slf4j.Slf4j;
 import me.earth.pingbypass.server.PingBypassServer;
 import me.earth.pingbypass.server.commands.api.AbstractServerCommand;
 import me.earth.pingbypass.server.commands.api.ServerCommandSource;
+import me.earth.pingbypass.server.handlers.play.GameProfileTranslation;
 import me.earth.pingbypass.server.handlers.play.JoinWorldService;
 import me.earth.pingbypass.server.handlers.play.PlayPacketHandler;
 import me.earth.pingbypass.server.session.Session;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 
+@Slf4j
 public class ConnectCommand extends AbstractServerCommand {
     public ConnectCommand(PingBypassServer server) {
         super(server, "connect", "Connects PingBypass to a server");
@@ -32,8 +36,9 @@ public class ConnectCommand extends AbstractServerCommand {
             if (player != null && level != null && gameMode != null) {
                 session.getPipeline().lock();
                 // TODO: when is the best time to allow proxying packets from client to server?
-                session.setListener(new PlayPacketHandler(server, session, session.getCookie()));
+                session.addSubscriber(new GameProfileTranslation(session));
                 session.subscribe();
+                session.setListener(new PlayPacketHandler(server, session, session.getCookie()));
                 new JoinWorldService().join(session, player, gameMode, level);
                 session.getPipeline().unlockAndFlush();
             } else {

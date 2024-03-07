@@ -79,15 +79,17 @@ public class Session extends Connection implements IConnection {
 
     @Synchronized("subscribers")
     public void subscribe() {
-        for (Subscriber subscriber : subscribers) {
-            if (!server.getEventBus().isSubscribed(subscriber)) {
-                server.getEventBus().subscribe(subscriber);
+        if (isConnected()) {
+            for (Subscriber subscriber : subscribers) {
+                if (!server.getEventBus().isSubscribed(subscriber)) {
+                    server.getEventBus().subscribe(subscriber);
+                }
             }
         }
     }
 
     @Synchronized("subscribers")
-    private void addSubscriber(Subscriber subscriber) {
+    public void addSubscriber(Subscriber subscriber) {
         this.subscribers.add(subscriber);
     }
 

@@ -47,7 +47,7 @@ public class ProtocolManagerTest {
     }
 
     @RequiredArgsConstructor
-    private static final class TestPacket implements C2SPacket, Handler.SelfHandling {
+    private static final class TestPacket implements C2SPacket, ProtocolHandler.SelfHandling {
         private final int id;
 
         public TestPacket(FriendlyByteBuf buf) {

@@ -8,7 +8,8 @@ import me.earth.pingbypass.api.event.gui.GuiScreenEvent;
 import me.earth.pingbypass.api.event.loop.GameloopEvent;
 import me.earth.pingbypass.api.event.loop.TickEvent;
 import me.earth.pingbypass.api.mixins.resource.IPackRepository;
-import me.earth.pingbypass.api.module.misc.AutoRespawn;
+import me.earth.pingbypass.api.platform.Platform;
+import me.earth.pingbypass.api.platform.PlatformProvider;
 import me.earth.pingbypass.api.resource.PackRepositoryHelper;
 import me.earth.pingbypass.api.util.mixin.MixinHelper;
 import net.minecraft.CrashReport;
@@ -61,7 +62,9 @@ public abstract class MixinMinecraft {
             target = "Lnet/minecraft/client/Minecraft;resourcePackRepository:Lnet/minecraft/server/packs/repository/PackRepository;"
             /* shift = At.Shift.AFTER is done by the Injection point, because shifting would wrap it */))
     private void resourcePackRepositoryHook(GameConfig config, CallbackInfo ci) {
-        PackRepositoryHelper.addPingBypassRepositorySource(((IPackRepository) resourcePackRepository));
+        if (PlatformProvider.getInstance().getCurrent().equals(Platform.FABRIC)) {
+            PackRepositoryHelper.addPingBypassRepositorySource(((IPackRepository) resourcePackRepository));
+        }
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
@@ -83,11 +86,6 @@ public abstract class MixinMinecraft {
     @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
     private void setScreenHook(Screen screen, CallbackInfo ci) {
         MixinHelper.hook(new GuiScreenEvent<>(screen), screen == null ? null : screen.getClass(), ci);
-    }
-
-    @Inject(method = "setScreen", at = @At(value = "NEW", target = "(Lnet/minecraft/network/chat/Component;Z)Lnet/minecraft/client/gui/screens/DeathScreen;"), cancellable = true)
-    private void deathScreenHook(Screen screen, CallbackInfo ci) {
-        MixinHelper.hook(new AutoRespawn.DeathScreenEvent(), ci);
     }
 
     @Inject(method = "setScreen", at = @At("RETURN"))

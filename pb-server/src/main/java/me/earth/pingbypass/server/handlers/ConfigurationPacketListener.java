@@ -125,8 +125,8 @@ public class ConfigurationPacketListener extends AbstractCommonPacketListener im
             lv.placeNewPlayer(session, lv3, this.createCookie(this.clientInformation));
             session.resumeInboundAfterProtocolChange();*/
             CommonListenerCookie cookie = this.createCookie(Objects.requireNonNull(this.clientInformation));
-            session.setListener(new ConfigWorldPacketHandler(server, session, cookie));
             session.setCookie(cookie);
+            session.setListener(new ConfigWorldPacketHandler(server, session, cookie));
             new ConfigWorld(server, session).placeNewPlayer(cookie);
             session.resumeInboundAfterProtocolChange();
         } catch (Exception e) {

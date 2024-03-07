@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[48,)"
+loaderVersion = "[1,)"
 issueTrackerURL = "https://github.com/3arthqu4ke/pingbypass"
 license = "MIT"
 

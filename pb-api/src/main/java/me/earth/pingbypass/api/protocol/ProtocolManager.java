@@ -2,6 +2,7 @@ package me.earth.pingbypass.api.protocol;
 
 import lombok.RequiredArgsConstructor;
 import me.earth.pingbypass.PingBypass;
+import me.earth.pingbypass.api.Constants;
 import me.earth.pingbypass.api.event.SubscriberImpl;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 public class ProtocolManager extends SubscriberImpl {
-    public static final DiscardedPayload PAYLOAD = new DiscardedPayload(new ResourceLocation("pingbypass", "processed"));
+    public static final DiscardedPayload PAYLOAD = new DiscardedPayload(new ResourceLocation(Constants.NAME_LOW, "processed"));
 
     private final Map<ResourceLocation, PacketHandler<?>> factories = new ConcurrentHashMap<>();
     private final PingBypass pingBypass;
@@ -24,8 +25,8 @@ public class ProtocolManager extends SubscriberImpl {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends PBPacket> void register(ResourceLocation location, FriendlyByteBuf.Reader<? extends T> factory, @Nullable Handler<? extends T> handler) {
-        factories.put(location, new PacketHandler<>((FriendlyByteBuf.Reader<T>) factory, (Handler<T>) handler));
+    public <T extends PBPacket> void register(ResourceLocation location, FriendlyByteBuf.Reader<? extends T> factory, @Nullable ProtocolHandler<? extends T> handler) {
+        factories.put(location, new PacketHandler<>((FriendlyByteBuf.Reader<T>) factory, (ProtocolHandler<T>) handler));
     }
 
     public @Nullable PBPacket handle(ResourceLocation location, FriendlyByteBuf buf) {
@@ -48,11 +49,11 @@ public class ProtocolManager extends SubscriberImpl {
         return false;
     }
 
-    private record PacketHandler<T extends PBPacket>(FriendlyByteBuf.Reader<T> factory, @Nullable Handler<T> handler) {
+    private record PacketHandler<T extends PBPacket>(FriendlyByteBuf.Reader<T> factory, @Nullable ProtocolHandler<T> handler) {
         public void handle(T packet, PingBypass pingBypass, Connection connection) {
             if (handler != null) {
                 handler.handle(packet, pingBypass, connection);
-            } else if (packet instanceof Handler.SelfHandling selfHandling) {
+            } else if (packet instanceof ProtocolHandler.SelfHandling selfHandling) {
                 selfHandling.handle(pingBypass, connection);
             }
         }

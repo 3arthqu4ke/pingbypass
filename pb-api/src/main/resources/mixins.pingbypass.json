@@ -8,8 +8,6 @@
     "maxShiftBy": 10
   },
   "mixins": [
-    "entity.IPlayer",
-    "entity.MixinEntity",
     "network.IPacketSet",
     "network.MixinConnection",
     "network.MixinConnectionProtocol",
@@ -17,23 +15,17 @@
     "network.c2s.MixinServerboundCustomPayloadPacket",
     "network.s2c.IClientBoundExplodePacket",
     "network.s2c.MixinClientboundCustomPayloadPacket",
-    "render.MixinSkylightEngine",
     "resource.IPackRepository"
   ],
   "client": [
     "MixinMinecraft",
-    "entity.MixinAbstractClientPlayer",
+    "entity.IAbstractClientPlayer",
     "entity.MixinLocalPlayer",
     "gui.IScreen",
     "gui.MixinChatComponent",
     "gui.MixinCommandSuggestions",
     "gui.MixinTitleScreen",
     "network.MixinClientPacketListener",
-    "network.MixinPacketEncoder",
-    "render.MixinCamera",
-    "render.MixinGameRenderer",
-    "render.MixinLevelRenderer",
-    "render.MixinLightTexture",
-    "render.MixinScreenEffectRenderer"
+    "network.MixinPacketEncoder"
   ]
 }
