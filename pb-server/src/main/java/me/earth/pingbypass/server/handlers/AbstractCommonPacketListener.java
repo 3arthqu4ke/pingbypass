@@ -132,6 +132,7 @@ public abstract class AbstractCommonPacketListener implements IHandler, Tickable
         return new CommonListenerCookie(playerProfile(), latency, clientInformation);
     }
 
+    // TODO: when we schedule we still need to handle the packet!
     protected void scheduleSafely(NullabilityUtil.PlayerLevelAndGameModeConsumer action) {
         mc.submit(() -> NullabilityUtil.safe(mc, action));
     }

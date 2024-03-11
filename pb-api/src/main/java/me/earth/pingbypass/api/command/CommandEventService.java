@@ -3,10 +3,11 @@ package me.earth.pingbypass.api.command;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.earth.pingbypass.api.event.SubscriberImpl;
-import me.earth.pingbypass.api.event.listeners.generic.Listener;
 import me.earth.pingbypass.api.event.chat.ChatEvent;
 import me.earth.pingbypass.api.event.chat.CommandSuggestionEvent;
-import net.minecraft.network.chat.ComponentUtils;
+import me.earth.pingbypass.api.event.listeners.generic.Listener;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 public class CommandEventService extends SubscriberImpl {
     public CommandEventService(CommandManager commandManager, CommandSource source) {
@@ -18,7 +19,7 @@ public class CommandEventService extends SubscriberImpl {
                     try {
                         commandManager.execute(event.getMessage().substring(prefix.length()), source);
                     } catch (CommandSyntaxException e) {
-                        source.getMinecraft().gui.getChat().addMessage(ComponentUtils.fromMessage(e.getRawMessage()));
+                        source.getMinecraft().gui.getChat().addMessage(Component.literal(e.getMessage()).withStyle(ChatFormatting.RED));
                     }
 
                     event.setCancelled(true);

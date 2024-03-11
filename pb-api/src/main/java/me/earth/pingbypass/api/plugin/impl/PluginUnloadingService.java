@@ -1,9 +1,10 @@
 package me.earth.pingbypass.api.plugin.impl;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import me.earth.pingbypass.PingBypass;
 import me.earth.pingbypass.api.command.Command;
 import me.earth.pingbypass.api.command.impl.module.ModuleCommand;
+import me.earth.pingbypass.api.event.api.EventBus;
 import me.earth.pingbypass.api.event.api.EventListener;
 import me.earth.pingbypass.api.event.api.Subscriber;
 import me.earth.pingbypass.api.module.Module;
@@ -14,21 +15,28 @@ import me.earth.pingbypass.api.setting.SettingRegistry;
 import me.earth.pingbypass.api.traits.Nameable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Makes it easier to write {@link Plugin}s that support unloading.
  */
-@RequiredArgsConstructor
 public class PluginUnloadingService {
-    private final Map<Registry<?>, List<Nameable>> registries = new HashMap<>();
-    private final Map<Subscriber, List<EventListener<?>>> listeners = new HashMap<>();
-    private final List<ModuleAddOn<?>> addOns = new ArrayList<>();
-    private final List<Subscriber> subscribers = new ArrayList<>();
-    private final List<Runnable> runOnUnload = new ArrayList<>();
-    private final PingBypass pingBypass;
+    private final Map<Registry<?>, List<Nameable>> registries = new ConcurrentHashMap<>();
+    private final Map<Subscriber, List<EventListener<?>>> listeners = new ConcurrentHashMap<>();
+    private final List<ModuleAddOn<?>> addOns = new CopyOnWriteArrayList<>();
+    private final List<Object> subscribers = new CopyOnWriteArrayList<>();
+    private final List<Runnable> runOnUnload = new CopyOnWriteArrayList<>();
+    @Getter
+    private final EventBus eventBus;
+    final PingBypass pingBypass;
+
+    public PluginUnloadingService(PingBypass pingBypass) {
+        this.pingBypass = pingBypass;
+        this.eventBus = new UnloadableEventBus(this);
+    }
 
     public boolean registerCommand(Command command) {
         return register(pingBypass.getCommandManager(), command);
@@ -60,11 +68,11 @@ public class PluginUnloadingService {
         return register(pingBypass.getModuleManager(), module);
     }
 
-    public void registerSubscriber(Subscriber subscriber) {
+    public void registerSubscriber(Object subscriber) {
         subscribers.add(subscriber);
     }
 
-    public void subscribe(Subscriber subscriber) {
+    public void subscribe(Object subscriber) {
         pingBypass.getEventBus().subscribe(subscriber);
         this.registerSubscriber(subscriber);
     }

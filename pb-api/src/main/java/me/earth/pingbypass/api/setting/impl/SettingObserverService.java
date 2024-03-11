@@ -5,6 +5,7 @@ import me.earth.pingbypass.api.setting.Setting;
 import me.earth.pingbypass.api.setting.SettingEvent;
 import me.earth.pingbypass.api.setting.SettingObserver;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -37,6 +38,16 @@ final class SettingObserverService<T> implements PreAndPostObservable<SettingObs
     public void removeObserver(SettingObserver<T> observer) {
         postObservers.remove(observer);
         preObservers.remove(observer);
+    }
+
+    @Override
+    public Collection<SettingObserver<T>> getPreObservers() {
+        return preObservers;
+    }
+
+    @Override
+    public Collection<SettingObserver<T>> getPostObservers() {
+        return postObservers;
     }
 
 }

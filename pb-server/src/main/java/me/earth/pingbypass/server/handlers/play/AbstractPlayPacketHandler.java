@@ -128,6 +128,7 @@ public abstract class AbstractPlayPacketHandler extends AbstractCommonPacketList
             player.setYRot(packet.getYRot(player.getYRot()));
             player.setXRot(packet.getXRot(player.getXRot()));
             player.setOnGround(packet.isOnGround());
+            session.getPlayerUpdateHandler().update(player);
         });
         // TODO: handle! Fire event!
     }

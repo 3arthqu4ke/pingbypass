@@ -4,12 +4,12 @@ import com.mojang.authlib.GameProfile;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Synchronized;
-import me.earth.pingbypass.api.event.api.Subscriber;
 import me.earth.pingbypass.api.ducks.network.IConnection;
 import me.earth.pingbypass.api.event.network.PacketEvent;
 import me.earth.pingbypass.server.PingBypassServer;
 import me.earth.pingbypass.server.event.PbPacketEvent;
+import me.earth.pingbypass.server.handlers.play.GameProfileTranslation;
+import me.earth.pingbypass.server.handlers.play.PlayerUpdateHandler;
 import me.earth.pingbypass.server.handlers.play.S2PB2CPipeline;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
@@ -18,15 +18,15 @@ import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.server.network.CommonListenerCookie;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
 @Setter
 public class Session extends Connection implements IConnection {
-    private final List<Subscriber> subscribers = new CopyOnWriteArrayList<>();
+    private final PlayerUpdateHandler playerUpdateHandler = new PlayerUpdateHandler();
+    private final GameProfileTranslation gameProfileTranslation;
+    private final SessionSubscriberService subscriberService;
     private final PingBypassServer server;
     private final S2PB2CPipeline pipeline;
 
@@ -42,9 +42,16 @@ public class Session extends Connection implements IConnection {
 
     public Session(PingBypassServer server) {
         super(PacketFlow.SERVERBOUND);
+        this.gameProfileTranslation = new GameProfileTranslation(this);
+        this.subscriberService = new SessionSubscriberService(server.getEventBus());
         this.pipeline = new S2PB2CPipeline(this);
-        addSubscriber(this.pipeline);
         this.server = server;
+    }
+
+    public void whenMadePrimarySession() {
+        subscriberService.addAndSubscribe(playerUpdateHandler);
+        subscriberService.addAndSubscribe(gameProfileTranslation);
+        subscriberService.addAndSubscribe(pipeline);
     }
 
     @Override
@@ -75,22 +82,6 @@ public class Session extends Connection implements IConnection {
     @Override
     public PacketEvent<?> getReceiveEvent(Packet<?> packet) {
         return new PbPacketEvent.C2Pb<>(packet, this);
-    }
-
-    @Synchronized("subscribers")
-    public void subscribe() {
-        if (isConnected()) {
-            for (Subscriber subscriber : subscribers) {
-                if (!server.getEventBus().isSubscribed(subscriber)) {
-                    server.getEventBus().subscribe(subscriber);
-                }
-            }
-        }
-    }
-
-    @Synchronized("subscribers")
-    public void addSubscriber(Subscriber subscriber) {
-        this.subscribers.add(subscriber);
     }
 
     public void initialTeleport(double x, double y, double z, float yaw, float pitch) {
