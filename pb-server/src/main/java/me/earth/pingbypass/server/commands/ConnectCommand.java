@@ -12,7 +12,6 @@ import me.earth.pingbypass.server.handlers.play.JoinWorldService;
 import me.earth.pingbypass.server.handlers.play.PlayPacketHandler;
 import me.earth.pingbypass.server.session.Session;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
@@ -36,8 +35,7 @@ public class ConnectCommand extends AbstractServerCommand {
             if (player != null && level != null && gameMode != null) {
                 session.getPipeline().lock();
                 // TODO: when is the best time to allow proxying packets from client to server?
-                session.addSubscriber(new GameProfileTranslation(session));
-                session.subscribe();
+                session.whenMadePrimarySession();
                 session.setListener(new PlayPacketHandler(server, session, session.getCookie()));
                 new JoinWorldService().join(session, player, gameMode, level);
                 session.getPipeline().unlockAndFlush();

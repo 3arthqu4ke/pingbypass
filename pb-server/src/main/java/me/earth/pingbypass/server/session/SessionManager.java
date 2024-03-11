@@ -89,7 +89,7 @@ public class SessionManager implements Iterable<Session> {
     @Synchronized
     private void remove(Session session) {
         session.setReadOnly();
-        session.getSubscribers().forEach(subscriber -> session.getServer().getEventBus().unsubscribe(subscriber));
+        session.getSubscriberService().shutdown();
         sessions.remove(session);
         if (session.equals(primarySession)) {
             primarySession = null;

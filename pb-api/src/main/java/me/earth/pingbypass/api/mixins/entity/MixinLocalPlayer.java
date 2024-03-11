@@ -15,9 +15,14 @@ public abstract class MixinLocalPlayer {
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/player/AbstractClientPlayer;tick()V",
-            shift = At.Shift.BEFORE))
+            shift = At.Shift.BEFORE),
+            cancellable = true)
     private void tickHook(CallbackInfo ci) {
-        PingBypassApi.getEventBus().post(new LocalPlayerUpdateEvent(LocalPlayer.class.cast(this)));
+        var event = new LocalPlayerUpdateEvent(LocalPlayer.class.cast(this));
+        PingBypassApi.getEventBus().post(event);
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
     }
 
 }
