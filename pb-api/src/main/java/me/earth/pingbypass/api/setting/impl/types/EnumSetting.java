@@ -20,5 +20,5 @@ public class EnumSetting<T extends Enum<T>> extends SettingImpl<T> {
     public Class<T> getType() {
         return getDefaultValue().getDeclaringClass();
     }
-    
+
 }
