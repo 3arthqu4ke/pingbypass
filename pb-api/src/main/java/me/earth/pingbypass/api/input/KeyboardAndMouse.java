@@ -15,7 +15,7 @@ public interface KeyboardAndMouse extends Streamable<Key> {
     }
 
     default boolean isPressed(Bind bind) {
-        return bind.stream().allMatch(this::isPressed);
+        return !bind.getKeys().isEmpty() && bind.stream().allMatch(this::isPressed);
     }
 
 }
